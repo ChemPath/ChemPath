@@ -1,3 +1,5 @@
+from chempath_database import create_connection, get_all_compounds
+from pathlib import Path
 import pandas as pd
 import numpy as np
 from sklearn.cluster import KMeans
@@ -7,11 +9,14 @@ import networkx as nx
 from chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
 
 def load_compound_data():
-    conn = create_connection("chempath_database.db")
+    database = Path("chempath_database.db")
+    conn = create_connection(database)
     compounds = get_all_compounds(conn)
-    df = pd.DataFrame(compounds, columns=['id', 'name', 'smiles', 'molecular_weight', 'logp', 'plant_source', 'biological_activity', 'traditional_use', 'column9', 'column10'])
     conn.close()
+    
+    df = pd.DataFrame(compounds, columns=['id', 'name', 'smiles', 'molecular_weight', 'logp', 'plant_source', 'biological_activity', 'traditional_use', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds'])
     return df
+
 
 def cluster_compounds(df, n_clusters=3):
     features = df[['molecular_weight', 'logp']].dropna()
@@ -32,17 +37,13 @@ def visualize_clusters(df):
     plt.close()
 
 def create_compound_therapeutic_area_network(df):
-    conn = create_connection("chempath_database.db")
     G = nx.Graph()
-    
     for _, compound in df.iterrows():
         G.add_node(compound['name'], type='compound')
-        areas = get_therapeutic_areas(conn, compound['id'])
+        areas = compound['biological_activity'].split(', ')
         for area in areas:
-            G.add_node(area[0], type='therapeutic_area')
-            G.add_edge(compound['name'], area[0])
-    
-    conn.close()
+            G.add_node(area, type='therapeutic_area')
+            G.add_edge(compound['name'], area)
     return G
 
 def visualize_network(G):
@@ -61,14 +62,28 @@ def visualize_network(G):
     plt.tight_layout()
     plt.savefig('compound_therapeutic_area_network.png')
     plt.close()
+import matplotlib.pyplot as plt
+
+def plot_molecular_weight_distribution(df):
+    plt.figure(figsize=(10, 6))
+    plt.hist(df['molecular_weight'], bins=20, edgecolor='black')
+    plt.title('Distribution of Molecular Weights')
+    plt.xlabel('Molecular Weight')
+    plt.ylabel('Frequency')
+    plt.savefig('molecular_weight_distribution.png')
+    plt.close()
 
 def analyze_compounds():
     df = load_compound_data()
-    df = cluster_compounds(df)
-    visualize_clusters(df)
+    
+    print("Basic statistics of molecular properties:")
+    print(df[['molecular_weight', 'logp']].describe())
+    
     G = create_compound_therapeutic_area_network(df)
-    visualize_network(G)
-    print("Analysis complete. Check the output directory for visualizations.")
+    print(f"Network created with {G.number_of_nodes()} nodes and {G.number_of_edges()} edges")
+    
+    plot_molecular_weight_distribution(df)
+
 
 if __name__ == "__main__":
     analyze_compounds()
