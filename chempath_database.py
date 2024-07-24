@@ -1,15 +1,12 @@
-# File: chempath_database.py
+# File: chempath_database_operations.py
 
 import sqlite3
-import csv
-from pathlib import Path
 
 def create_connection(db_file):
-    """Create a database connection to a SQLite database"""
+    """Create a database connection to the SQLite database specified by db_file"""
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(f"Connected to SQLite version: {sqlite3.version}")
         return conn
     except sqlite3.Error as e:
         print(e)
@@ -31,7 +28,6 @@ def create_table(conn):
                 traditional_use TEXT
             )
         ''')
-        print("Table 'plant_compounds' created successfully")
     except sqlite3.Error as e:
         print(e)
 
@@ -48,31 +44,55 @@ def insert_compound(conn, compound):
         print(e)
         return None
 
-def load_sample_data(conn):
-    """Load sample data"""
-    sample_data = [
-        ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant, anti-inflammatory", "Traditional Chinese Medicine for cardiovascular health"),
-        ("Curcumin", "COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC", 368.38, 3.29, "Turmeric (Curcuma longa)", "Anti-inflammatory, antioxidant", "Ayurvedic medicine for various ailments"),
-    ]
-    
-    for compound in sample_data:
-        insert_compound(conn, compound)
-    print(f"Inserted {len(sample_data)} sample compounds")
+def get_compound_by_name(conn, name):
+    """Retrieve a compound by its name"""
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM plant_compounds WHERE name=?", (name,))
+    return cursor.fetchone()
 
-def main():
-    database = Path("chempath_database.db")
-    conn = create_connection(database)
+def update_compound(conn, compound):
+    """Update an existing compound in the database"""
+    sql = '''UPDATE plant_compounds
+             SET smiles = ?, molecular_weight = ?, logp = ?, plant_source = ?, biological_activity = ?, traditional_use = ?
+             WHERE name = ?'''
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql, compound[1:] + (compound[0],))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(e)
 
+def delete_compound(conn, name):
+    """Delete a compound from the database by its name"""
+    sql = 'DELETE FROM plant_compounds WHERE name=?'
+    try:
+        cursor = conn.cursor()
+        cursor.execute(sql, (name,))
+        conn.commit()
+    except sqlite3.Error as e:
+        print(e)
+
+def get_all_compounds(conn):
+    """Retrieve all compounds from the database"""
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM plant_compounds")
+    return cursor.fetchall()
+
+# Example usage
+if __name__ == '__main__':
+    conn = create_connection("chempath_database.db")
     if conn is not None:
         create_table(conn)
-        load_sample_data(conn)
+        
+        # Insert a compound
+        new_compound = ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant, anti-inflammatory", "Traditional Chinese Medicine for cardiovascular health")
+        insert_compound(conn, new_compound)
+        
+        # Retrieve and print all compounds
+        compounds = get_all_compounds(conn)
+        for compound in compounds:
+            print(compound)
+        
         conn.close()
     else:
         print("Error! Cannot create the database connection.")
-
-if __name__ == '__main__':
-    main()
-
-# File: requirements.txt
-
-sqlite3
