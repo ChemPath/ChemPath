@@ -2,6 +2,24 @@
 
 from chempath_database import create_connection
 
+def get_compound_classes(cursor, compound_id):
+    cursor.execute("""
+        SELECT cc.name 
+        FROM compound_classes cc
+        JOIN compound_class_relationships ccr ON cc.id = ccr.compound_class_id
+        WHERE ccr.compound_id = ?
+    """, (compound_id,))
+    return [row[0] for row in cursor.fetchall()]
+
+def get_therapeutic_areas(cursor, compound_id):
+    cursor.execute("""
+        SELECT ta.name 
+        FROM therapeutic_areas ta
+        JOIN therapeutic_area_relationships tar ON ta.id = tar.therapeutic_area_id
+        WHERE tar.compound_id = ?
+    """, (compound_id,))
+    return [row[0] for row in cursor.fetchall()]
+
 def check_data():
     conn = create_connection("chempath_database.db")
     if conn is not None:
@@ -14,9 +32,15 @@ def check_data():
             print(f"Molecular Weight: {row[3]}")
             print(f"LogP: {row[4]}")
             print(f"Plant Source: {row[5]}")
-            print(f"Therapeutic Areas: {row[6]}")
-            print(f"Biological Activities: {row[7]}")
-            print(f"Traditional Use: {row[8]}")
+            print(f"Biological Activity: {row[6]}")
+            print(f"Traditional Use: {row[7]}")
+            
+            compound_classes = get_compound_classes(cursor, row[0])
+            print(f"Compound Classes: {', '.join(compound_classes)}")
+            
+            therapeutic_areas = get_therapeutic_areas(cursor, row[0])
+            print(f"Therapeutic Areas: {', '.join(therapeutic_areas)}")
+            
             print("--------------------")
         conn.close()
     else:
