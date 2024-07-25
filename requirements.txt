@@ -1,1 +1,6 @@
 beautifulsoup4
+rdkit
+scikit-learn
+pandas
+apscheduler
+joblib
