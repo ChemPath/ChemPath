@@ -4,6 +4,8 @@ from chempath_core import fetch_random_compound_name, fetch_pubchem_data
 from rdkit import Chem
 from chempath_core import create_connection, insert_compound, create_tables, create_indexes, search_compounds, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure, chemical_space_exploration
 from advanced_retrosynthesis import advanced_retrosynthetic_analysis
+from synthetic_feasibility import analyze_synthetic_feasibility
+from reagent_availability import analyze_reagent_availability
 
 
 def validate_smiles(smiles):
@@ -363,20 +365,22 @@ def main():
 
         while True:
             print("\nChemPath Menu:")
-            print("1. Add a new molecule")
-            print("2. View all molecules")
-            print("3. Search for a molecule")
-            print("4. Update a molecule")
-            print("5. Delete a molecule")
-            print("6. Calculate molecular properties")
-            print("7. Generate molecular fingerprints")
-            print("8. Perform similarity search")
+            print("1. Display all compounds")
+            print("2. Add external compound")
+            print("3. Predict therapeutic areas")
+            print("4. Display predicted areas")
+            print("5. Expand dataset from PubChem")
+            print("6. Search compounds")
+            print("7. Optimize structure")
+            print("8. Generate analogs")
             print("9. Explore chemical space")
             print("10. Perform retrosynthetic analysis")
             print("11. Perform advanced retrosynthetic analysis")
-            print("12. Exit")
-        
-            choice = input("Enter your choice (1-12): ")
+            print("12. Analyze synthetic feasibility")
+            print("13. Analyze reagent availability")
+            print("14. Exit")
+            
+            choice = input("Enter your choice (1-14): ")
             
             if choice == '1':
                 display_all_compounds(api.conn)
@@ -458,13 +462,18 @@ def main():
             elif choice == '11':
                 perform_advanced_retrosynthetic_analysis()
             elif choice == '12':
+                smiles = input("Enter the SMILES of the molecule to analyze: ")
+                target_smiles = input("Enter the SMILES of the target molecule: ")
+                analyze_synthetic_feasibility(smiles, target_smiles)
+            elif choice == '13':
+                reagent_name = input("Enter the name of the reagent to analyze: ")
+                analyze_reagent_availability(reagent_name)
+            elif choice == '14':
                 print("Exiting ChemPath. Goodbye!")
                 break
             else:
-                print("Invalid choice. Please try again.")   
-
+                print("Invalid choice. Please try again.")
 def perform_retrosynthetic_analysis():
-    from retrosynthesis import retrosynthetic_analysis
     smiles = input("Enter the SMILES string of the target molecule: ")
     while True:
         try:
@@ -476,55 +485,6 @@ def perform_retrosynthetic_analysis():
         except ValueError:
             print("Please enter a valid integer.")
     retrosynthetic_analysis(smiles, depth)
- 
-
-from advanced_retrosynthesis import advanced_retrosynthetic_analysis
-
-def main():
-    while True:
-        print("\nChemPath Menu:")
-        print("1. Add a new molecule")
-        print("2. View all molecules")
-        print("3. Search for a molecule")
-        print("4. Update a molecule")
-        print("5. Delete a molecule")
-        print("6. Calculate molecular properties")
-        print("7. Generate molecular fingerprints")
-        print("8. Perform similarity search")
-        print("9. Explore chemical space")
-        print("10. Perform retrosynthetic analysis")
-        print("11. Perform advanced retrosynthetic analysis")
-        print("12. Exit")
-        
-        choice = input("Enter your choice (1-12): ")
-        
-        if choice == '1':
-            add_molecule()
-        elif choice == '2':
-            view_all_molecules()
-        elif choice == '3':
-            search_molecule()
-        elif choice == '4':
-            update_molecule()
-        elif choice == '5':
-            delete_molecule()
-        elif choice == '6':
-            calculate_properties()
-        elif choice == '7':
-            generate_fingerprints()
-        elif choice == '8':
-            perform_similarity_search()
-        elif choice == '9':
-            explore_chemical_space()
-        elif choice == '10':
-            perform_retrosynthetic_analysis()
-        elif choice == '11':
-            perform_advanced_retrosynthetic_analysis()
-        elif choice == '12':
-            print("Exiting ChemPath. Goodbye!")
-            break
-        else:
-            print("Invalid choice. Please try again.")
 
 def perform_advanced_retrosynthetic_analysis():
     smiles = input("Enter the SMILES string of the target molecule: ")
@@ -541,6 +501,3 @@ def perform_advanced_retrosynthetic_analysis():
 
 if __name__ == "__main__":
     main()
-
-
-
