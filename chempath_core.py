@@ -1,15 +1,11 @@
 import sqlite3
 from rdkit import Chem
 from rdkit.Chem import Descriptors
-import sqlite3
-from rdkit import Chem
 from rdkit.Chem import AllChem
-from rdkit.Chem import Descriptors
 import random
 import logging
 from structural_optimization import functional_group_substitution, ring_system_alteration, scaffold_hopping
-
-import logging
+import requests
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,10 +31,8 @@ def calculate_descriptors(smiles):
         'polar_surface_area': Descriptors.TPSA(mol),
         'rotatable_bonds': Descriptors.NumRotatableBonds(mol)
     }
-import random
 
 def fetch_random_compound_name():
-    # This is a simplified version. In a real scenario, you might want to fetch this from a more comprehensive list or API
     common_compounds = ["Aspirin", "Caffeine", "Ibuprofen", "Acetaminophen", "Penicillin", "Morphine", "Quinine", "Insulin", "Dopamine", "Serotonin"]
     return random.choice(common_compounds)
 
@@ -92,10 +86,6 @@ def get_therapeutic_areas(conn):
     return [area[0] for area in areas if area[0]]
 
 def predict_therapeutic_areas(smiles, all_therapeutic_areas):
-    # This is a placeholder function. In a real-world scenario, you would implement
-    # a machine learning model to predict therapeutic areas based on SMILES.
-    # For now, we'll return a random selection of therapeutic areas.
-    import random
     return random.sample(all_therapeutic_areas, min(3, len(all_therapeutic_areas)))
 
 def create_tables(conn):
@@ -131,6 +121,7 @@ def create_tables(conn):
         print("Table 'predicted_therapeutic_areas' created successfully")
     except sqlite3.Error as e:
         print(e)
+
 def fetch_pubchem_data(compound_name):
     base_url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug"
     search_url = f"{base_url}/compound/name/{compound_name}/JSON"
@@ -167,9 +158,7 @@ def create_indexes(conn):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_compound_smiles ON plant_compounds(smiles)")
     conn.commit()
     print("Indexes created successfully")
-    
 
-    
 def optimize_structure(smiles, optimization_type, params):
     mol = Chem.MolFromSmiles(smiles)
     if optimization_type == 'functional_group':
@@ -181,13 +170,49 @@ def optimize_structure(smiles, optimization_type, params):
     else:
         raise ValueError("Invalid optimization type")
 
+def chemical_space_exploration(smiles, num_iterations=10):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return []
+
+    explored_molecules = []
+    for _ in range(num_iterations):
+        new_mol = Chem.RWMol(mol)
+        
+        modification = random.choice(['add_atom', 'remove_atom', 'change_bond'])
+        
+        if modification == 'add_atom':
+            atom = random.choice(['C', 'N', 'O'])
+            new_mol.AddAtom(Chem.Atom(atom))
+            idx = new_mol.GetNumAtoms() - 1
+            random_atom = random.randint(0, idx - 1)
+            new_mol.AddBond(random_atom, idx, Chem.BondType.SINGLE)
+        
+        elif modification == 'remove_atom':
+            if new_mol.GetNumAtoms() > 1:
+                idx = random.randint(0, new_mol.GetNumAtoms() - 1)
+                new_mol.RemoveAtom(idx)
+        
+        elif modification == 'change_bond':
+            if new_mol.GetNumBonds() > 0:
+                bond_idx = random.randint(0, new_mol.GetNumBonds() - 1)
+                bond = new_mol.GetBondWithIdx(bond_idx)
+                new_order = random.choice([Chem.BondType.SINGLE, Chem.BondType.DOUBLE, Chem.BondType.TRIPLE])
+                bond.SetBondType(new_order)
+        
+        new_smiles = Chem.MolToSmiles(new_mol)
+        if new_smiles not in explored_molecules:
+            explored_molecules.append(new_smiles)
+    
+    return explored_molecules
+
 def main():
     database = Path("chempath_database.db")
     conn = create_connection(database)
 
     if conn is not None:
-        create_table(conn)
-        load_sample_data(conn)
+        create_tables(conn)
+        create_indexes(conn)
         conn.close()
     else:
         print("Error! Cannot create the database connection.")

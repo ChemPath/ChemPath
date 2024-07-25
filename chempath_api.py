@@ -1,3 +1,5 @@
+from structural_optimization import generate_analogs, chemical_space_exploration
+from rdkit import Chem
 from chempath_core import optimize_structure
 from chempath_core import create_connection, search_compounds, insert_compound, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure
 
@@ -21,5 +23,9 @@ class ChemPathAPI:
     def optimize_structure(self, smiles, optimization_type, params):
         return optimize_structure(smiles, optimization_type, params)
 
+    def explore_chemical_space(self, smiles, num_iterations=10):
+        return chemical_space_exploration(smiles, num_iterations)
+
     def close_connection(self):
         self.conn.close()
+

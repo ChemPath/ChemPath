@@ -6,6 +6,53 @@ from rdkit.Chem import DataStructs
 from rdkit.Chem.AllChem import GetMorganFingerprintAsBitVect
 import random
 
+def chemical_space_exploration(smiles, num_iterations=10):
+    """
+    Explore the chemical space around a given molecule.
+    
+    Args:
+    smiles (str): SMILES string of the starting molecule
+    num_iterations (int): Number of iterations for exploration
+    
+    Returns:
+    list: List of new SMILES strings representing the explored chemical space
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        return []
+
+    explored_molecules = []
+    for _ in range(num_iterations):
+        new_mol = Chem.RWMol(mol)
+        
+        # Randomly choose a modification
+        modification = random.choice(['add_atom', 'remove_atom', 'change_bond'])
+        
+        if modification == 'add_atom':
+            atom = random.choice(['C', 'N', 'O'])
+            new_mol.AddAtom(Chem.Atom(atom))
+            idx = new_mol.GetNumAtoms() - 1
+            random_atom = random.randint(0, idx - 1)
+            new_mol.AddBond(random_atom, idx, Chem.BondType.SINGLE)
+        
+        elif modification == 'remove_atom':
+            if new_mol.GetNumAtoms() > 1:
+                idx = random.randint(0, new_mol.GetNumAtoms() - 1)
+                new_mol.RemoveAtom(idx)
+        
+        elif modification == 'change_bond':
+            if new_mol.GetNumBonds() > 0:
+                bond_idx = random.randint(0, new_mol.GetNumBonds() - 1)
+                bond = new_mol.GetBondWithIdx(bond_idx)
+                new_order = random.choice([Chem.BondType.SINGLE, Chem.BondType.DOUBLE, Chem.BondType.TRIPLE])
+                bond.SetBondType(new_order)
+        
+        new_smiles = Chem.MolToSmiles(new_mol)
+        if new_smiles not in explored_molecules:
+            explored_molecules.append(new_smiles)
+    
+    return explored_molecules
+
 def functional_group_substitution(mol, target_group, replacement_group):
     try:
         target_pattern = Chem.MolFromSmarts(target_group)
@@ -95,3 +142,29 @@ def combine_fragments(mol1, mol2):
     # For now, we'll return a simple combination of the two molecules
     combined = Chem.CombineMols(mol1, mol2)
     return combined
+
+def generate_analogs(mol, num_analogs=5):
+    analogs = []
+    for _ in range(num_analogs):
+        analog = Chem.Mol(mol)
+        
+        modification = random.choice(['functional_group', 'ring_system', 'scaffold'])
+        
+        if modification == 'functional_group':
+            target_group = '[OH]'  # Example target group
+            replacement_group = '[NH2]'  # Example replacement group
+            analog = functional_group_substitution(analog, target_group, replacement_group)
+        elif modification == 'ring_system':
+            alteration_type = random.choice(['expand', 'contract', 'fuse'])
+            analog = ring_system_alteration(analog, alteration_type)
+        elif modification == 'scaffold':
+            scaffold_library = ['c1ccccc1', 'C1CCCCC1', 'c1ccncc1']
+            analog = scaffold_hopping(analog, scaffold_library)
+        
+        if analog:
+            if isinstance(analog, str):
+                analogs.append(analog)
+            else:
+                analogs.append(Chem.MolToSmiles(analog))
+    
+    return list(set(analogs))

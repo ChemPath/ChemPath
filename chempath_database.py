@@ -2,6 +2,8 @@ import requests
 from chempath_core import setup_logging
 from chempath_core import fetch_random_compound_name, fetch_pubchem_data
 from rdkit import Chem
+from chempath_core import create_connection, insert_compound, create_tables, create_indexes, search_compounds, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure, chemical_space_exploration
+
 
 def validate_smiles(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -19,6 +21,7 @@ from predict_therapeutic_areas import predict_therapeutic_areas
 import sqlite3
 import csv
 from pathlib import Path
+from chempath_api import ChemPathAPI
 import requests
 from rdkit import Chem
 from rdkit.Chem import Descriptors
@@ -333,6 +336,8 @@ def display_compounds(compounds):
             compound[7][:15]
         ))
 
+import sqlite3
+import csv
 from pathlib import Path
 from chempath_core import create_connection, create_tables, create_indexes, setup_logging
 from chempath_api import ChemPathAPI
@@ -347,7 +352,7 @@ def validate_smarts(smarts):
     return pattern is not None
 
 def main():
-    setup_logging()
+    from chempath_api import ChemPathAPI
     database = Path("chempath_database.db")
     api = ChemPathAPI(database)
 
@@ -364,9 +369,11 @@ def main():
             print("5. Expand dataset from PubChem")
             print("6. Search compounds")
             print("7. Structural Optimization")
-            print("8. Exit")
-        
-            choice = input("Enter your choice (1-8): ")
+            print("8. Generate analogs")
+            print("9. Explore chemical space")
+            print("10. Exit")
+
+            choice = input("Enter your choice (1-10): ")
             
             if choice == '1':
                 display_all_compounds(api.conn)
@@ -430,12 +437,26 @@ def main():
                 
                 print("Optimization result:", result)
             elif choice == '8':
+                smiles = input("Enter SMILES string for the compound: ")
+                num_analogs = int(input("Enter number of analogs to generate: "))
+                analogs = api.generate_analogs(smiles, num_analogs)
+                print("Generated analogs:")
+                for i, analog in enumerate(analogs, 1):
+                    print(f"{i}. {analog}")
+            elif choice == '9':
+                smiles = input("Enter SMILES of the starting molecule: ")
+                num_iterations = int(input("Enter number of iterations for exploration: "))
+                explored_molecules = api.explore_chemical_space(smiles, num_iterations)
+                print(f"Explored {len(explored_molecules)} new molecules:")
+                for i, mol in enumerate(explored_molecules, 1):
+                    print(f"{i}. {mol}")
+            elif choice == '10':
                 print("Exiting ChemPath. Goodbye!")
+                api.close_connection()
                 break
             else:
                 print("Invalid choice. Please try again.")
 
-        api.close_connection()
     else:
         print("Error! Cannot create the database connection.")
 
