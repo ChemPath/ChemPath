@@ -371,9 +371,10 @@ def main():
             print("7. Structural Optimization")
             print("8. Generate analogs")
             print("9. Explore chemical space")
-            print("10. Exit")
+            print("10. Perform retrosynthetic analysis")
+            print("11. Exit")
 
-            choice = input("Enter your choice (1-10): ")
+            choice = input("Enter your choice (1-11): ")
             
             if choice == '1':
                 display_all_compounds(api.conn)
@@ -451,15 +452,69 @@ def main():
                 for i, mol in enumerate(explored_molecules, 1):
                     print(f"{i}. {mol}")
             elif choice == '10':
+                perform_retrosynthetic_analysis()
+            elif choice == '11':
                 print("Exiting ChemPath. Goodbye!")
-                api.close_connection()
+            break
+        else:
+            print("Invalid choice. Please try again.")
+
+def perform_retrosynthetic_analysis():
+    from retrosynthesis import retrosynthetic_analysis
+    smiles = input("Enter the SMILES string of the target molecule: ")
+    while True:
+        try:
+            depth = int(input("Enter the depth of analysis (1-3): "))
+            if 1 <= depth <= 3:
                 break
             else:
-                print("Invalid choice. Please try again.")
+                print("Please enter a number between 1 and 3.")
+        except ValueError:
+            print("Please enter a valid integer.")
+    retrosynthetic_analysis(smiles, depth)
 
-    else:
-        print("Error! Cannot create the database connection.")
+def main():
+    while True:
+        print("\nChemPath Menu:")
+        print("1. Add a new molecule")
+        print("2. View all molecules")
+        print("3. Search for a molecule")
+        print("4. Update a molecule")
+        print("5. Delete a molecule")
+        print("6. Calculate molecular properties")
+        print("7. Generate molecular fingerprints")
+        print("8. Perform similarity search")
+        print("9. Explore chemical space")
+        print("10. Perform retrosynthetic analysis")
+        print("11. Exit")
+        
+        choice = input("Enter your choice (1-11): ")
+        
+        if choice == '1':
+            add_molecule()
+        elif choice == '2':
+            view_all_molecules()
+        elif choice == '3':
+            search_molecule()
+        elif choice == '4':
+            update_molecule()
+        elif choice == '5':
+            delete_molecule()
+        elif choice == '6':
+            calculate_properties()
+        elif choice == '7':
+            generate_fingerprints()
+        elif choice == '8':
+            perform_similarity_search()
+        elif choice == '9':
+            explore_chemical_space()
+        elif choice == '10':
+            perform_retrosynthetic_analysis()
+        elif choice == '11':
+            print("Exiting ChemPath. Goodbye!")
+            break
+        else:
+            print("Invalid choice. Please try again.")
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
