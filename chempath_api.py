@@ -1,4 +1,5 @@
-from chempath_core import create_connection, search_compounds, insert_compound, get_therapeutic_areas, predict_therapeutic_areas
+from chempath_core import optimize_structure
+from chempath_core import create_connection, search_compounds, insert_compound, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure
 
 class ChemPathAPI:
     def __init__(self, db_path):
@@ -16,6 +17,9 @@ class ChemPathAPI:
     def predict_therapeutic_areas(self, smiles):
         all_therapeutic_areas = self.get_therapeutic_areas()
         return predict_therapeutic_areas(smiles, all_therapeutic_areas)
+
+    def optimize_structure(self, smiles, optimization_type, params):
+        return optimize_structure(smiles, optimization_type, params)
 
     def close_connection(self):
         self.conn.close()

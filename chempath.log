@@ -1,0 +1,254 @@
+2024-07-24 21:47:56,713 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:47:56,719 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:47:56,719 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:47:56,719 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:47:56,719 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:47:56,732 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:47:56,732 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:47:56,735 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:47:56,735 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:47:56,736 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:48:05,283 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:48:05,289 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:48:05,290 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:48:05,290 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:48:05,291 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:48:05,291 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:48:05,292 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:48:05,293 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:48:05,293 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:48:05,294 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:48:05,295 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:48:05,295 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 21:48:05,295 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 21:48:05,295 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 21:48:05,297 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 21:48:05,297 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 21:48:05,297 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:18:52,659 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 22:18:52,672 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:18:52,672 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:18:52,672 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:18:52,674 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:18:52,674 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Failure
+2024-07-24 22:18:52,677 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:18:52,685 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:18:52,685 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:18:52,686 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:27:30,480 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:27:30,480 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:27:30,495 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:27:30,496 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:27:30,499 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:27:30,499 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:27:30,499 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:27:30,505 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:27:30,505 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:27:30,508 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:27:30,509 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:27:30,518 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:27:30,519 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:27:30,519 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:32:09,318 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:32:09,318 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:32:09,329 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:32:09,331 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:32:09,341 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:32:09,341 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:32:09,342 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:32:09,348 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:34:29,108 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:34:29,108 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:34:29,123 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:34:29,125 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:34:29,128 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:34:29,129 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:34:29,137 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:34:29,138 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:34:29,139 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:34:29,139 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:34:29,139 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:34:29,139 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:34:29,139 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:34:29,141 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:34:29,142 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:34:29,142 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:34:29,142 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:34:29,144 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:34:29,144 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:40:42,820 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:40:42,820 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:40:42,820 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:40:42,820 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:40:42,829 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:40:42,829 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:40:42,829 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:40:42,829 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:40:42,829 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:40:42,834 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:40:42,834 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:40:42,835 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:40:42,836 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:40:42,836 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:40:42,838 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:40:42,838 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:40:42,839 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:40:42,839 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:40:42,839 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:40:42,840 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:40:42,841 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:40:42,841 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:40:42,842 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:40:42,843 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:40:42,844 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:45:14,123 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:45:14,127 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:45:14,127 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:45:14,132 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:45:14,135 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:45:14,137 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:45:14,137 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:45:14,137 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:45:14,137 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:45:14,137 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:45:14,142 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:45:14,143 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:45:14,144 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:45:14,145 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:45:14,147 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:45:14,148 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:45:14,148 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 22:45:14,148 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 22:45:14,148 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 22:45:14,148 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 22:45:14,153 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 22:45:14,153 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 22:45:14,154 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 22:45:14,154 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 22:45:14,155 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:11:22,041 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:11:22,057 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:11:22,059 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:11:22,061 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:11:22,067 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:11:22,068 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:11:22,069 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:11:22,069 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:11:22,070 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:11:22,072 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:15:06,012 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:15:06,012 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:15:06,026 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:15:06,028 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:15:06,031 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:15:06,031 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:15:06,031 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:15:06,031 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:15:06,031 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:15:06,038 - INFO - Optimization attempt: SMILES=C1=CC=CC=C1, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:15:06,039 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:15:06,039 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CC1=C(C(=O)NO)C(=O)C2=C(C1=O)C=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CCO, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Failure
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Failure
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CCO, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Failure
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CCO, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:15:06,040 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:15:06,047 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:15:06,047 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success
+2024-07-24 23:15:06,049 - INFO - Optimization attempt: SMILES=CN1CCC[C@H]1C2=CN=CC=C2, Type=scaffold, Params={'scaffold_library': 'c1ccccc1,C1CCCCC1,c1ccncc1'}, Result=Failure
+2024-07-24 23:19:00,259 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=functional_group, Params={'target': '[OH]', 'replacement': '[NH2]'}, Result=Success
+2024-07-24 23:19:00,262 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'expand'}, Result=Success
+2024-07-24 23:19:00,264 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'contract'}, Result=Success
+2024-07-24 23:19:00,266 - INFO - Optimization attempt: SMILES=CC(=O)OC1=CC=CC=C1C(=O)O, Type=ring_system, Params={'alteration_type': 'fuse'}, Result=Success

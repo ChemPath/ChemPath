@@ -1,6 +1,19 @@
 import sqlite3
 from rdkit import Chem
 from rdkit.Chem import Descriptors
+import sqlite3
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from rdkit.Chem import Descriptors
+import random
+import logging
+from structural_optimization import functional_group_substitution, ring_system_alteration, scaffold_hopping
+
+import logging
+
+def setup_logging():
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    return logging.getLogger(__name__)
 
 def create_connection(db_file):
     conn = None
@@ -154,3 +167,30 @@ def create_indexes(conn):
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_compound_smiles ON plant_compounds(smiles)")
     conn.commit()
     print("Indexes created successfully")
+    
+
+    
+def optimize_structure(smiles, optimization_type, params):
+    mol = Chem.MolFromSmiles(smiles)
+    if optimization_type == 'functional_group':
+        return functional_group_substitution(mol, params['target'], params['replacement'])
+    elif optimization_type == 'ring_system':
+        return ring_system_alteration(mol, params['alteration_type'])
+    elif optimization_type == 'scaffold':
+        return scaffold_hopping(mol, params['scaffold_library'])
+    else:
+        raise ValueError("Invalid optimization type")
+
+def main():
+    database = Path("chempath_database.db")
+    conn = create_connection(database)
+
+    if conn is not None:
+        create_table(conn)
+        load_sample_data(conn)
+        conn.close()
+    else:
+        print("Error! Cannot create the database connection.")
+
+if __name__ == '__main__':
+    main()

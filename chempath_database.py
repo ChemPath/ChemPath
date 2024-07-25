@@ -1,6 +1,15 @@
 import requests
+from chempath_core import setup_logging
 from chempath_core import fetch_random_compound_name, fetch_pubchem_data
 from rdkit import Chem
+
+def validate_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return mol is not None
+
+def validate_smarts(smarts):
+    pattern = Chem.MolFromSmarts(smarts)
+    return pattern is not None
 from rdkit.Chem import Descriptors
 from chempath_api import ChemPathAPI
 from chempath_core import fetch_pubchem_data
@@ -324,7 +333,21 @@ def display_compounds(compounds):
             compound[7][:15]
         ))
 
+from pathlib import Path
+from chempath_core import create_connection, create_tables, create_indexes, setup_logging
+from chempath_api import ChemPathAPI
+from rdkit import Chem
+
+def validate_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return mol is not None
+
+def validate_smarts(smarts):
+    pattern = Chem.MolFromSmarts(smarts)
+    return pattern is not None
+
 def main():
+    setup_logging()
     database = Path("chempath_database.db")
     api = ChemPathAPI(database)
 
@@ -340,88 +363,28 @@ def main():
             print("4. Display predicted areas")
             print("5. Expand dataset from PubChem")
             print("6. Search compounds")
-            print("7. Exit")
+            print("7. Structural Optimization")
+            print("8. Exit")
         
-            choice = input("Enter your choice (1-7): ")
-        
+            choice = input("Enter your choice (1-8): ")
+            
             if choice == '1':
-                compounds, _ = api.search()
-                display_compounds(compounds)
+                display_all_compounds(api.conn)
             elif choice == '2':
-                compound_name = input("Enter compound name to fetch from PubChem: ")
-                compound_data = fetch_pubchem_data(compound_name)
-                
-                if compound_data:
-                    plant_source = input("Enter plant source: ")
-                    biological_activity = input("Enter biological activity: ")
-                    traditional_use = input("Enter traditional use: ")
-                    
-                    compound = (
-                        compound_data['name'],
-                        compound_data['smiles'],
-                        compound_data['molecular_weight'],
-                        compound_data['logp'],
-                        plant_source,
-                        biological_activity,
-                        traditional_use,
-                        compound_data['h_bond_donors'],
-                        compound_data['h_bond_acceptors'],
-                        compound_data['polar_surface_area'],
-                        compound_data['rotatable_bonds']
-                    )
-                    
-                    compound_id = api.add_compound(compound)
-                    print(f"Compound {compound_data['name']} added successfully with ID {compound_id}")
-                else:
-                    print(f"Could not fetch data for compound {compound_name}")
+                add_external_compound(api.conn)
             elif choice == '3':
                 smiles = input("Enter SMILES string for the compound: ")
                 predicted_areas = api.predict_therapeutic_areas(smiles)
                 print("Predicted therapeutic areas:", predicted_areas)
-                
-                # Store prediction in database
                 cursor = api.conn.cursor()
                 cursor.execute("INSERT INTO predicted_therapeutic_areas (smiles, predicted_areas) VALUES (?, ?)",
                                (smiles, ','.join(predicted_areas)))
                 api.conn.commit()
                 print("Prediction stored in database.")
             elif choice == '4':
-                cursor = api.conn.cursor()
-                cursor.execute("SELECT smiles, predicted_areas, prediction_date FROM predicted_therapeutic_areas ORDER BY prediction_date DESC")
-                predictions = cursor.fetchall()
-                
-                if predictions:
-                    print("\nPredicted Therapeutic Areas:")
-                    for smiles, areas, date in predictions:
-                        print(f"SMILES: {smiles}")
-                        print(f"Predicted Areas: {areas}")
-                        print(f"Prediction Date: {date}")
-                        print("-" * 50)
-                else:
-                    print("No predictions found in the database.")
+                display_predicted_areas(api.conn)
             elif choice == '5':
-                num_compounds = int(input("Enter the number of compounds to add: "))
-                added_count = 0
-                for _ in range(num_compounds):
-                    compound_name = fetch_random_compound_name()
-                    compound_data = fetch_pubchem_data(compound_name)
-                    if compound_data:
-                        compound = (
-                            compound_data['name'],
-                            compound_data['smiles'],
-                            compound_data['molecular_weight'],
-                            compound_data['logp'],
-                            "Unknown",  # plant_source
-                            "Unknown",  # biological_activity
-                            "Unknown",  # traditional_use
-                            compound_data['h_bond_donors'],
-                            compound_data['h_bond_acceptors'],
-                            compound_data['polar_surface_area'],
-                            compound_data['rotatable_bonds']
-                        )
-                        api.add_compound(compound)
-                        added_count += 1
-                print(f"Added {added_count} new compounds to the database.")
+                expand_dataset_from_pubchem(api)
             elif choice == '6':
                 query = input("Enter search query (compound name or SMILES): ")
                 filters = {}
@@ -433,7 +396,8 @@ def main():
                 page = 1
                 while True:
                     compounds, total_count = api.search(query, filters, page)
-                    display_compounds(compounds)
+                    for compound in compounds:
+                        print(compound)
                     print(f"Page {page} of {(total_count - 1) // 10 + 1}")
                     action = input("Next page (n), previous page (p), or quit (q)? ")
                     if action.lower() == 'n':
@@ -443,6 +407,30 @@ def main():
                     else:
                         break
             elif choice == '7':
+                smiles = input("Enter SMILES string for the molecule: ")
+                print("Choose optimization type:")
+                print("1. Functional group substitution")
+                print("2. Ring system alteration")
+                print("3. Scaffold hopping")
+                opt_choice = input("Enter your choice (1-3): ")
+                
+                if opt_choice == '1':
+                    target = input("Enter target functional group (SMARTS): ")
+                    replacement = input("Enter replacement group (SMARTS): ")
+                    result = api.optimize_structure(smiles, 'functional_group', {'target': target, 'replacement': replacement})
+                elif opt_choice == '2':
+                    alteration_type = input("Enter alteration type (expand/contract/fuse): ")
+                    result = api.optimize_structure(smiles, 'ring_system', {'alteration_type': alteration_type})
+                elif opt_choice == '3':
+                    scaffold_library = input("Enter scaffold SMILES (comma-separated): ").split(',')
+                    result = api.optimize_structure(smiles, 'scaffold', {'scaffold_library': scaffold_library})
+                else:
+                    print("Invalid choice")
+                    continue
+                
+                print("Optimization result:", result)
+            elif choice == '8':
+                print("Exiting ChemPath. Goodbye!")
                 break
             else:
                 print("Invalid choice. Please try again.")
@@ -453,3 +441,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
