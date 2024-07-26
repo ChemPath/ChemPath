@@ -206,6 +206,8 @@ def chemical_space_exploration(smiles, num_iterations=10):
     
     return explored_molecules
 
+from pathlib import Path
+
 def main():
     database = Path("chempath_database.db")
     conn = create_connection(database)

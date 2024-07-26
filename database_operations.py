@@ -28,7 +28,16 @@ def store_optimization_result(conn, compound_id, optimization_data):
 def store_retrosynthesis_result(conn, compound_id, retrosynthesis_data):
     cursor = conn.cursor()
     cursor.execute("""
+        CREATE TABLE IF NOT EXISTS retrosynthesis_results (
+            id INTEGER PRIMARY KEY,
+            compound_id INTEGER,
+            retrosynthesis_data TEXT,
+            FOREIGN KEY (compound_id) REFERENCES plant_compounds (id)
+        );
+    """)
+    cursor.execute("""
         INSERT INTO retrosynthesis_results (compound_id, retrosynthesis_data)
-        VALUES (?, ?)
+        VALUES (?, ?);
     """, (compound_id, json.dumps(retrosynthesis_data)))
     conn.commit()
+

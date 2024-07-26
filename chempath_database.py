@@ -14,10 +14,9 @@ from database_operations import create_connection, get_compound_by_smiles, store
 from database_operations import create_connection, get_compound_by_smiles
 from optimization import optimize_compound
 from retrosynthesis import retrosynthetic_analysis
+from chempath_core import create_tables, create_indexes
 
 print("Script started")
-
-
 
 
 def validate_smiles(smiles):
@@ -130,9 +129,21 @@ def create_tables(conn):
             )
         ''')
         print("Table 'plant_compounds' created successfully")
+
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS retrosynthesis_results (
+                id INTEGER PRIMARY KEY,
+                compound_id INTEGER,
+                retrosynthesis_data TEXT,
+                FOREIGN KEY (compound_id) REFERENCES plant_compounds (id)
+            )
+        ''')
+        print("Table 'retrosynthesis_results' created successfully")
+
     except sqlite3.Error as e:
         print(f"Error creating table: {e}")
 
+    conn.rollback()
 
 
 def create_indexes(conn):
@@ -365,7 +376,7 @@ def main():
     from chempath_api import ChemPathAPI
     database = Path("chempath_database.db")
     api = ChemPathAPI(database)
-
+    create_tables(api.conn)
     if api.conn is not None:
         create_tables(api.conn)
         create_indexes(api.conn)
@@ -385,9 +396,10 @@ def main():
             print("11. Perform advanced retrosynthetic analysis")
             print("12. Analyze synthetic feasibility")
             print("13. Analyze reagent availability")
-            print("14. Exit")
-            
-            choice = input("Enter your choice (1-14): ")
+            print("14. Perform comprehensive analysis")
+            print("15. Exit")
+
+            choice = input("Enter your choice (1-15): ")
             
             if choice == '1':
                 display_all_compounds(api.conn)
@@ -476,6 +488,13 @@ def main():
                 reagent_name = input("Enter the name of the reagent to analyze: ")
                 analyze_reagent_availability(reagent_name)
             elif choice == '14':
+                smiles = input("Enter SMILES string for comprehensive analysis: ")
+                results = comprehensive_analysis(api, smiles)
+                print("\nComprehensive Analysis Results:")
+                print(f"Optimization: {results['optimization']}")
+                print(f"Retrosynthesis: {results['retrosynthesis']}")
+                print(f"Therapeutic Areas: {results['therapeutic_areas']}")
+            elif choice == '15':
                 print("Exiting ChemPath. Goodbye!")
                 break
             else:
@@ -528,6 +547,30 @@ def get_retrosynthesis_result(conn, compound_id):
     return json.loads(result[0]) if result else None
 
 print("About to check if __name__ == '__main__'")
+
+def comprehensive_analysis(api, smiles):
+    print(f"\nPerforming comprehensive analysis for compound: {smiles}")
+    
+    # Step 1: Optimization
+    print("\nStep 1: Structure Optimization")
+    optimized_result = api.optimize_structure(smiles, 'functional_group', {'target': 'C(=O)O', 'replacement': 'C(=O)N'})
+    print(f"Optimization result: {optimized_result}")
+    
+    # Step 2: Retrosynthesis
+    print("\nStep 2: Retrosynthetic Analysis")
+    retrosynthesis_result = perform_retrosynthesis(api.conn, 1, smiles)  # Assuming compound_id 1
+    print(f"Retrosynthesis result: {retrosynthesis_result}")
+    
+    # Step 3: Therapeutic Area Prediction
+    print("\nStep 3: Therapeutic Area Prediction")
+    therapeutic_areas = predict_therapeutic_areas(smiles, [])
+    print(f"Predicted therapeutic areas: {therapeutic_areas}")
+    
+    return {
+        'optimization': optimized_result,
+        'retrosynthesis': retrosynthesis_result,
+        'therapeutic_areas': therapeutic_areas
+    }
 
 if __name__ == "__main__":
     print("Calling main function")
