@@ -1,11 +1,23 @@
 import requests
-from chempath_core import setup_logging
-from chempath_core import fetch_random_compound_name, fetch_pubchem_data
 from rdkit import Chem
-from chempath_core import create_connection, insert_compound, create_tables, create_indexes, search_compounds, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure, chemical_space_exploration
+from chempath_core import (
+    setup_logging, fetch_random_compound_name, fetch_pubchem_data,
+    insert_compound, create_tables, create_indexes, search_compounds,
+    get_therapeutic_areas, optimize_structure, chemical_space_exploration
+)
 from advanced_retrosynthesis import advanced_retrosynthetic_analysis
 from synthetic_feasibility import analyze_synthetic_feasibility
 from reagent_availability import analyze_reagent_availability
+from retrosynthesis import perform_retrosynthesis
+from predict_therapeutic_areas import predict_therapeutic_areas
+from database_operations import create_connection, get_compound_by_smiles, store_optimization_result
+from database_operations import create_connection, get_compound_by_smiles
+from optimization import optimize_compound
+from retrosynthesis import retrosynthetic_analysis
+
+print("Script started")
+
+
 
 
 def validate_smiles(smiles):
@@ -30,15 +42,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 import pandas as pd
 
-def create_connection(db_file):
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-        print(f"Connected to SQLite version: {sqlite3.version}")
-        return conn
-    except sqlite3.Error as e:
-        print(e)
-    return conn
+
 
 def get_all_compounds(conn):
     cursor = conn.cursor()
@@ -354,7 +358,10 @@ def validate_smarts(smarts):
     pattern = Chem.MolFromSmarts(smarts)
     return pattern is not None
 
+
+print("Defining main function")
 def main():
+    print("Entering main function")
     from chempath_api import ChemPathAPI
     database = Path("chempath_database.db")
     api = ChemPathAPI(database)
@@ -473,6 +480,7 @@ def main():
                 break
             else:
                 print("Invalid choice. Please try again.")
+
 def perform_retrosynthetic_analysis():
     smiles = input("Enter the SMILES string of the target molecule: ")
     while True:
@@ -499,5 +507,31 @@ def perform_advanced_retrosynthetic_analysis():
             print("Please enter a valid integer.")
     advanced_retrosynthetic_analysis(smiles, depth)
 
+def get_optimization_result(conn, compound_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT optimization_data FROM optimization_results WHERE compound_id = ?", (compound_id,))
+    result = cursor.fetchone()
+    return json.loads(result[0]) if result else None
+
+def store_retrosynthesis_result(conn, compound_id, retrosynthesis_data):
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO retrosynthesis_results (compound_id, retrosynthesis_data)
+        VALUES (?, ?)
+    """, (compound_id, json.dumps(retrosynthesis_data)))
+    conn.commit()
+
+def get_retrosynthesis_result(conn, compound_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT retrosynthesis_data FROM retrosynthesis_results WHERE compound_id = ?", (compound_id,))
+    result = cursor.fetchone()
+    return json.loads(result[0]) if result else None
+
+print("About to check if __name__ == '__main__'")
+
 if __name__ == "__main__":
+    print("Calling main function")
     main()
+
+
+

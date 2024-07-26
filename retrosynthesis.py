@@ -1,5 +1,6 @@
 # retrosynthesis.py
 
+from database_operations import store_retrosynthesis_result
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
@@ -15,7 +16,6 @@ reaction_database = [
         "reactant": "C(=O)OC",
         "products": ["C(=O)O", "CO"]
     },
-
     {
         "name": "Carboxylic acid reduction",
         "reactant": "CC(=O)O",
@@ -59,7 +59,6 @@ def apply_transformation(mol, reaction):
             return [p for p in products if Chem.MolFromSmiles(p) is not None]
     return []
 
-
 def generate_smiles_variants(smiles):
     mol = Chem.MolFromSmiles(smiles)
     return [
@@ -76,7 +75,7 @@ def retrosynthetic_analysis(smiles, depth=1, indent=""):
         return
 
     print(f"{indent}Retrosynthetic analysis for {smiles}:")
-    
+   
     any_transformation_applied = False
     for reaction in reaction_database:
         products = apply_transformation(mol, reaction)
@@ -88,11 +87,33 @@ def retrosynthetic_analysis(smiles, depth=1, indent=""):
                 if depth > 1:
                     for variant in generate_smiles_variants(product):
                         retrosynthetic_analysis(variant, depth - 1, indent + "    ")
-    
+   
     if not any_transformation_applied:
         print(f"{indent}  No applicable transformations found")
 
     print(f"{indent}Retrosynthetic analysis complete")
 
-# You can add more functions here for handling larger reaction databases,
-# loading transformation rules from files, etc.
+def perform_retrosynthesis(conn, compound_id, smiles, depth=1):
+    retrosynthesis_data = {}
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        retrosynthesis_data['error'] = "Invalid SMILES string"
+    else:
+        retrosynthesis_data['steps'] = []
+        for reaction in reaction_database:
+            products = apply_transformation(mol, reaction)
+            if products:
+                step = {
+                    'reaction_name': reaction['name'],
+                    'products': products
+                }
+                retrosynthesis_data['steps'].append(step)
+                if depth > 1:
+                    for product in products:
+                        for variant in generate_smiles_variants(product):
+                            sub_analysis = perform_retrosynthesis(conn, compound_id, variant, depth - 1)
+                            if 'steps' in sub_analysis:
+                                step['sub_steps'] = sub_analysis['steps']
+
+    store_retrosynthesis_result(conn, compound_id, retrosynthesis_data)
+    return retrosynthesis_data
