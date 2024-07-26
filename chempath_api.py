@@ -2,23 +2,28 @@ from structural_optimization import generate_analogs, chemical_space_exploration
 from rdkit import Chem
 from chempath_core import optimize_structure
 from chempath_core import create_connection, search_compounds, insert_compound, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure
+from chempath_core import train_ml_model
 
 class ChemPathAPI:
     def __init__(self, db_path):
         self.conn = create_connection(db_path)
+        create_tables(self.conn)
+        create_indexes(self.conn)
+        self.model, self.scaler = train_ml_model(self.conn)
+
 
     def search(self, query=None, filters=None, page=1, per_page=10):
         return search_compounds(self.conn, query, filters, page, per_page)
 
     def add_compound(self, compound_data):
+        from chempath_database import insert_compound
         return insert_compound(self.conn, compound_data)
 
     def get_therapeutic_areas(self):
         return get_therapeutic_areas(self.conn)
 
     def predict_therapeutic_areas(self, smiles):
-        all_therapeutic_areas = self.get_therapeutic_areas()
-        return predict_therapeutic_areas(smiles, all_therapeutic_areas)
+        return predict_therapeutic_areas(smiles, self.model, self.scaler)
 
     def optimize_structure(self, smiles, optimization_type, params):
         return optimize_structure(smiles, optimization_type, params)
@@ -27,8 +32,10 @@ class ChemPathAPI:
         return chemical_space_exploration(smiles, num_iterations)
     
     def retrosynthesis_informed_optimization(self, smiles):
+        from chempath_core import get_compound_by_smiles
         compound = get_compound_by_smiles(self.conn, smiles)
     def retrosynthesis_informed_optimization(self, smiles):
+        from chempath_core import get_compound_by_smiles, get_retrosynthesis_data, retrosynthesis_informed_optimization, store_retrosynthesis_informed_optimization
         compound = get_compound_by_smiles(self.conn, smiles)
         if compound:
             retrosynthesis_data = get_retrosynthesis_data(self.conn, compound[0])
@@ -37,6 +44,19 @@ class ChemPathAPI:
             return optimized_smiles
         else:
             return None
+        
+    def train_ml_model(self, conn):
+        from chempath_core import train_ml_model
+        return train_ml_model(conn)
+    
+    def search_compounds(self, query):
+        from chempath_core import search_compounds
+        return search_compounds(self.conn, query)
+
+    
+    def __init__(self, db_path):
+        self.conn = create_connection(db_path)
+        self.model, self.scaler = train_ml_model(self.conn)
 
     def close_connection(self):
         self.conn.close()

@@ -1,3 +1,6 @@
+# File: ml_model.py
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning)
 import pandas as pd
 import numpy as np
 from rdkit import Chem
@@ -12,49 +15,56 @@ import joblib
 def calculate_molecular_descriptors(smiles):
     mol = Chem.MolFromSmiles(smiles)
     return {
-        'MolWt': Descriptors.MolWt(mol),
-        'LogP': Descriptors.MolLogP(mol),
-        'NumHDonors': Descriptors.NumHDonors(mol),
-        'NumHAcceptors': Descriptors.NumHAcceptors(mol),
-        'NumRotatableBonds': Descriptors.NumRotatableBonds(mol),
-        'NumAromaticRings': Descriptors.NumAromaticRings(mol),
-        'TPSA': Descriptors.TPSA(mol)
+        'molecular_weight': Descriptors.MolWt(mol),
+        'logp': Descriptors.MolLogP(mol),
+        'h_bond_donors': Descriptors.NumHDonors(mol),
+        'h_bond_acceptors': Descriptors.NumHAcceptors(mol),
+        'polar_surface_area': Descriptors.TPSA(mol),
+        'rotatable_bonds': Descriptors.NumRotatableBonds(mol)
     }
 
-def train_model(df, all_therapeutic_areas):
-    # Calculate molecular descriptors for each compound
-    df['molecular_descriptors'] = df['smiles'].apply(calculate_molecular_descriptors)
+def prepare_data(conn):
+    # Fetch data from the database
+    query = "SELECT * FROM plant_compounds"
+    df = pd.read_sql_query(query, conn)
+    
+    # Prepare features and target
+    features = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']]
+    target = df['biological_activity'].str.get_dummies(sep=', ')
+    
+    return features, target
 
-    # Extract features from the molecular_descriptors column
-    features = pd.DataFrame(df['molecular_descriptors'].tolist(), index=df.index)
-
-    # Prepare target variables (therapeutic areas)
-    target = df['therapeutic_areas'].apply(lambda x: [1 if area in x else 0 for area in all_therapeutic_areas])
-    target = pd.DataFrame(target.tolist(), columns=all_therapeutic_areas, index=df.index)
-
-    # Split the data into training and testing sets
+def train_model(conn):
+    features, target = prepare_data(conn)
+    
+    # Split the data
     X_train, X_test, y_train, y_test = train_test_split(features, target, test_size=0.2, random_state=42)
-
+    
     # Scale the features
     scaler = StandardScaler()
     X_train_scaled = scaler.fit_transform(X_train)
     X_test_scaled = scaler.transform(X_test)
-
-    # Initialize and train the model
-    model = MultiOutputClassifier(RandomForestClassifier(n_estimators=100, random_state=42))
+    
+    # Train the model
+    rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    model = MultiOutputClassifier(rf)
     model.fit(X_train_scaled, y_train)
-
-    # Make predictions on the test set
-    y_pred = model.predict(X_test_scaled)
-
+    
     # Evaluate the model
-    print(classification_report(y_test, y_pred, target_names=all_therapeutic_areas))
-
-    # Save the model and scaler for later use
+    y_pred = model.predict(X_test_scaled)
+    print(classification_report(y_test, y_pred, target_names=target.columns))
+    
+    # Save the model and scaler
     joblib.dump(model, 'therapeutic_area_predictor.joblib')
     joblib.dump(scaler, 'feature_scaler.joblib')
-
+    
     return model, scaler
 
-# This function should be called with your data to train the model
-# Example: train_model(your_dataframe, your_list_of_therapeutic_areas)
+def predict_therapeutic_areas(smiles, model, scaler):
+    descriptors = calculate_molecular_descriptors(smiles)
+    features = pd.DataFrame([descriptors])
+    features_scaled = scaler.transform(features)
+    predictions = model.predict(features_scaled)
+    therapeutic_areas = [model.classes_[i] for i, pred in enumerate(predictions[0]) if pred]
+    return therapeutic_areas
+

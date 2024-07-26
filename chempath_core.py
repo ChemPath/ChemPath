@@ -6,6 +6,9 @@ import random
 import logging
 from structural_optimization import functional_group_substitution, ring_system_alteration, scaffold_hopping
 import requests
+from ml_model import predict_therapeutic_areas as ml_predict_therapeutic_areas
+from ml_model import train_model
+
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -85,8 +88,8 @@ def get_therapeutic_areas(conn):
     areas = cursor.fetchall()
     return [area[0] for area in areas if area[0]]
 
-def predict_therapeutic_areas(smiles, all_therapeutic_areas):
-    return random.sample(all_therapeutic_areas, min(3, len(all_therapeutic_areas)))
+def predict_therapeutic_areas(smiles, model, scaler):
+    return ml_predict_therapeutic_areas(smiles, model, scaler)
 
 def create_tables(conn):
     try:
@@ -221,6 +224,9 @@ def chemical_space_exploration(smiles, num_iterations=10):
 
 from pathlib import Path
 
+def train_ml_model(conn):
+    model, scaler = train_model(conn)
+    return model, scaler
 def main():
     database = Path("chempath_database.db")
     conn = create_connection(database)

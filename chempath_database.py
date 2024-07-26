@@ -147,6 +147,20 @@ def create_tables(conn):
     except sqlite3.Error as e:
         print(f"Error creating table: {e}")
 
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS ml_model_performance (
+            id INTEGER PRIMARY KEY,
+            model_version TEXT NOT NULL,
+            accuracy REAL,
+            precision REAL,
+            recall REAL,
+            f1_score REAL,
+            training_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+
+    print("All tables created successfully")
+
     conn.rollback()
 
 
@@ -154,7 +168,9 @@ def create_indexes(conn):
     cursor = conn.cursor()
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_compound_name ON plant_compounds(name)")
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_compound_smiles ON plant_compounds(smiles)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_ml_model_performance_version ON ml_model_performance(model_version)")
     conn.commit()
+    
     print("Indexes created successfully")
 
 def add_predicted_therapeutic_areas_table(conn):
@@ -227,6 +243,14 @@ def insert_compound(conn, compound):
         print(e)
         return None
 
+def add_sample_compounds(conn):
+    sample_compounds = [
+        ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant, Anti-inflammatory", "Traditional medicine"),
+        ("Curcumin", "COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC", 368.38, 3.29, "Turmeric", "Anti-inflammatory, Antioxidant", "Ayurvedic medicine")
+    ]
+    for compound in sample_compounds:
+        insert_compound(conn, compound)
+    print("Sample compounds added successfully")
 
 
 def add_external_compound(conn):
@@ -600,8 +624,13 @@ def main():
     else:
         print("Error! Cannot create the database connection.")
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    conn = create_connection("chempath.db")
+    create_tables(conn)
+    create_indexes(conn)
+    add_sample_compounds(conn)
+    conn.close()
+
 
 
 
