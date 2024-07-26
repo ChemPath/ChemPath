@@ -121,6 +121,7 @@ def create_tables(conn):
                 logp REAL,
                 plant_source TEXT,
                 biological_activity TEXT,
+                biological_activities TEXT,
                 traditional_use TEXT,
                 h_bond_donors INTEGER,
                 h_bond_acceptors INTEGER,
@@ -129,6 +130,9 @@ def create_tables(conn):
             )
         ''')
         print("Table 'plant_compounds' created successfully")
+    except sqlite3.Error as e:
+        print(e)
+
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS retrosynthesis_results (
@@ -211,8 +215,9 @@ def fetch_pubchem_data(compound_name):
     return None
 
 def insert_compound(conn, compound):
-    sql = '''INSERT OR REPLACE INTO plant_compounds(name, smiles, molecular_weight, logp, plant_source, biological_activity, traditional_use, h_bond_donors, h_bond_acceptors, polar_surface_area, rotatable_bonds)
-             VALUES(?,?,?,?,?,?,?,?,?,?,?)'''
+    """Insert a new compound into the plant_compounds table"""
+    sql = '''INSERT INTO plant_compounds(name, smiles, molecular_weight, logp, plant_source, biological_activity, traditional_use)
+             VALUES(?,?,?,?,?,?,?)'''
     try:
         cursor = conn.cursor()
         cursor.execute(sql, compound)
@@ -221,6 +226,8 @@ def insert_compound(conn, compound):
     except sqlite3.Error as e:
         print(e)
         return None
+
+
 
 def add_external_compound(conn):
     compound_name = input("Enter compound name to fetch from PubChem: ")
@@ -572,9 +579,30 @@ def comprehensive_analysis(api, smiles):
         'therapeutic_areas': therapeutic_areas
     }
 
-if __name__ == "__main__":
-    print("Calling main function")
+def load_sample_data(conn):
+    sample_data = [
+        ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant, anti-inflammatory", "Traditional Chinese Medicine for cardiovascular health"),
+        ("Curcumin", "COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC", 368.38, 3.29, "Turmeric (Curcuma longa)", "Anti-inflammatory, antioxidant", "Ayurvedic medicine for various ailments"),
+    ]
+    
+    for compound in sample_data:
+        insert_compound(conn, compound)
+    print(f"Inserted {len(sample_data)} sample compounds")
+
+
+def main():
+    database = Path("chempath_database.db")
+    conn = create_connection(database)
+    if conn is not None:
+        create_tables(conn)
+        load_sample_data(conn)
+        conn.close()
+    else:
+        print("Error! Cannot create the database connection.")
+
+if __name__ == '__main__':
     main()
+
 
 
 

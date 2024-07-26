@@ -25,6 +25,18 @@ class ChemPathAPI:
 
     def explore_chemical_space(self, smiles, num_iterations=10):
         return chemical_space_exploration(smiles, num_iterations)
+    
+    def retrosynthesis_informed_optimization(self, smiles):
+        compound = get_compound_by_smiles(self.conn, smiles)
+    def retrosynthesis_informed_optimization(self, smiles):
+        compound = get_compound_by_smiles(self.conn, smiles)
+        if compound:
+            retrosynthesis_data = get_retrosynthesis_data(self.conn, compound[0])
+            optimized_smiles = retrosynthesis_informed_optimization(smiles, retrosynthesis_data)
+            store_retrosynthesis_informed_optimization(self.conn, compound[0], optimized_smiles)
+            return optimized_smiles
+        else:
+            return None
 
     def close_connection(self):
         self.conn.close()

@@ -40,4 +40,25 @@ def store_retrosynthesis_result(conn, compound_id, retrosynthesis_data):
         VALUES (?, ?);
     """, (compound_id, json.dumps(retrosynthesis_data)))
     conn.commit()
+def get_retrosynthesis_data(conn, compound_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT retrosynthesis_data FROM retrosynthesis_results WHERE compound_id = ?", (compound_id,))
+    result = cursor.fetchone()
+    return json.loads(result[0]) if result else None
+
+def store_retrosynthesis_informed_optimization(conn, compound_id, optimized_smiles):
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS retrosynthesis_informed_optimizations (
+            id INTEGER PRIMARY KEY,
+            compound_id INTEGER,
+            optimized_smiles TEXT,
+            FOREIGN KEY (compound_id) REFERENCES plant_compounds (id)
+        );
+    """)
+    cursor.execute("""
+        INSERT INTO retrosynthesis_informed_optimizations (compound_id, optimized_smiles)
+        VALUES (?, ?);
+    """, (compound_id, optimized_smiles))
+    conn.commit()
 
