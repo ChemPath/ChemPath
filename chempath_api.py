@@ -7,6 +7,8 @@ from chempath_ml_models import (train_retrosynthesis_model, train_reaction_predi
                                 predict_retrosynthesis, predict_reaction, smiles_to_fingerprint)
 import numpy as np
 from ai_optimization import train_optimization_model, prioritize_optimization_strategies
+from predict_therapeutic_areas import predict_therapeutic_areas
+import sqlite3
 
 class ChemPathAPI:
     def table_exists(self, table_name):
@@ -31,20 +33,49 @@ class ChemPathAPI:
         compounds = [{'name': row[0], 'molecular_weight': row[1], 'logp': row[2], 'h_bond_donors': row[3], 'h_bond_acceptors': row[4]} for row in cursor.fetchall()]
         print(f"Retrieved {len(compounds)} compounds from the database.")
         return compounds
-
-
+    
+    
+    def add_compound(self, compound_data):
+        try:
+            cursor = self.conn.cursor()
+            query = """
+                INSERT INTO plant_compounds (
+                    name, smiles, molecular_weight, logp, plant_source, biological_activity,
+                    traditional_use, h_bond_donors, h_bond_acceptors,
+                    polar_surface_area, rotatable_bonds
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            values = (
+                compound_data['name'],
+                compound_data['smiles'],
+                compound_data['molecular_weight'],
+                compound_data['logp'],
+                compound_data['plant_source'],
+                compound_data['biological_activity'],
+                compound_data['traditional_use'],
+                compound_data['h_bond_donors'],
+                compound_data['h_bond_acceptors'],
+                compound_data['polar_surface_area'],
+                compound_data['rotatable_bonds']
+            )
+            cursor.execute(query, values)
+            self.conn.commit()
+            return True
+        except sqlite3.Error as e:
+            print(f"An error occurred: {e}")
+            return False
+        
     def get_optimization_data(self):
         # This is a placeholder. In a real scenario, you'd fetch historical optimization data.
-        return [{'molecular_weight': 300, 'logp': 2.5, 'h_bond_donors': 2, 'h_bond_acceptors': 5, 'optimization_score': 0.8},
-                {'molecular_weight': 400, 'logp': 3.5, 'h_bond_donors': 1, 'h_bond_acceptors': 7, 'optimization_score': 0.6}]
+        return [
+            {'molecular_weight': 300, 'logp': 2.5, 'h_bond_donors': 2, 'h_bond_acceptors': 5, 'optimization_score': 0.8},
+            {'molecular_weight': 400, 'logp': 3.5, 'h_bond_donors': 1, 'h_bond_acceptors': 7, 'optimization_score': 0.6}
+        ]
 
     def search(self, query=None, filters=None, page=1, per_page=10):
         return search_compounds(self.conn, query, filters, page, per_page)
 
-    def add_compound(self, compound_data):
-        from chempath_database import insert_compound
-        return insert_compound(self.conn, compound_data)
-
+    
     def get_therapeutic_areas(self):
         return get_therapeutic_areas(self.conn)
 
@@ -57,9 +88,6 @@ class ChemPathAPI:
     def explore_chemical_space(self, smiles, num_iterations=10):
         return chemical_space_exploration(smiles, num_iterations)
     
-    def retrosynthesis_informed_optimization(self, smiles):
-        from chempath_core import get_compound_by_smiles
-        compound = get_compound_by_smiles(self.conn, smiles)
     def retrosynthesis_informed_optimization(self, smiles):
         from chempath_core import get_compound_by_smiles, get_retrosynthesis_data, retrosynthesis_informed_optimization, store_retrosynthesis_informed_optimization
         compound = get_compound_by_smiles(self.conn, smiles)
@@ -94,10 +122,6 @@ class ChemPathAPI:
     def predict_reaction_class(self, smiles):
         return predict_reaction(self.reaction_model, self.reaction_scaler, smiles)
 
-
-
-
-    
     def search_compounds(self, query):
         from chempath_core import search_compounds
         return search_compounds(self.conn, query)
@@ -107,7 +131,9 @@ class ChemPathAPI:
         optimization_model = train_optimization_model(optimization_data)
         prioritized_compounds = prioritize_optimization_strategies(compounds, optimization_model)
         return prioritized_compounds
-
+    
+    def predict_therapeutic_areas(self, smiles):
+        return predict_therapeutic_areas(smiles)
     
     def __init__(self, db_path):
         self.conn = create_connection(db_path)

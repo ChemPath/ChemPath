@@ -1,27 +1,43 @@
 from chempath_api import ChemPathAPI
 from database_operations import get_compound_by_smiles, get_retrosynthesis_data, store_retrosynthesis_informed_optimization
 from chempath_core import retrosynthesis_informed_optimization
+from manual_scoring import calculate_manual_score
 
 def add_compound(api):
-    name = input("Enter compound name: ")
-    smiles = input("Enter SMILES string: ")
-    molecular_weight = float(input("Enter molecular weight: "))
-    logp = float(input("Enter LogP value: "))
-    h_bond_donors = int(input("Enter number of H-bond donors: "))
-    h_bond_acceptors = int(input("Enter number of H-bond acceptors: "))
-
     compound = {
-        'name': name,
-        'smiles': smiles,
-        'molecular_weight': molecular_weight,
-        'logp': logp,
-        'h_bond_donors': h_bond_donors,
-        'h_bond_acceptors': h_bond_acceptors
+        'name': input("Enter compound name: "),
+        'smiles': input("Enter SMILES string: "),
+        'molecular_weight': float(input("Enter molecular weight: ")),
+        'logp': float(input("Enter LogP value: ")),
+        'plant_source': input("Enter plant source (if applicable): "),
+        'biological_activity': input("Enter biological activity: "),
+        'traditional_use': input("Enter traditional use (if applicable): "),
+        'h_bond_donors': int(input("Enter number of H-bond donors: ")),
+        'h_bond_acceptors': int(input("Enter number of H-bond acceptors: ")),
+        'polar_surface_area': float(input("Enter polar surface area: ")),
+        'rotatable_bonds': int(input("Enter number of rotatable bonds: "))
     }
+    
+    if api.add_compound(compound):
+        print(f"Compound {compound['name']} added successfully.")
+    else:
+        print("Failed to add compound. Please try again.")
 
-    api.add_compound(compound)
-    print(f"Compound {name} added successfully.")
+    
+def compare_manual_and_ai_scores(api):
+    smiles = input("Enter SMILES string for the compound: ")
+    
+    # Get AI model's prediction
+    ai_prediction = api.predict_therapeutic_areas(smiles)
+    ai_score = len(ai_prediction) / 10  # Normalize based on number of predicted areas
 
+    # Calculate manual score
+    manual_score = calculate_manual_score(smiles)
+
+    print(f"AI Model Score: {ai_score:.2f}")
+    print(f"Manual Score: {manual_score:.2f}")
+    print(f"Difference: {abs(ai_score - manual_score):.2f}")
+    
 def main():
     api = ChemPathAPI("C:/Users/Dr. Contessa Petrini/ChemPath/chempath_database.db")
 
@@ -47,9 +63,10 @@ def main():
         print("18. Predict retrosynthesis feasibility")
         print("19. Predict reaction class")
         print("20. AI-driven Optimization Prioritization")
-        print("21. Exit")
+        print("21. Compare manual and AI scores")
+        print("22. Exit")
 
-        choice = input("Enter your choice (1-21): ")
+        choice = input("Enter your choice (1-22): ")
 
         if choice == '1':
             # Implement search compounds
@@ -128,6 +145,8 @@ def main():
                 print(f"   H-Bond Donors: {compound['h_bond_donors']}")
                 print(f"   H-Bond Acceptors: {compound['h_bond_acceptors']}")
         elif choice == '21':
+            compare_manual_and_ai_scores(api)
+        elif choice == '22':
             print("Thank you for using ChemPath. Goodbye!")
             api.close_connection()
             break

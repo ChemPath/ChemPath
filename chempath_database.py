@@ -138,7 +138,6 @@ def create_tables(conn):
     except sqlite3.Error as e:
         print(f"Error creating table: {e}")
 
-
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS retrosynthesis_results (
                 id INTEGER PRIMARY KEY,
