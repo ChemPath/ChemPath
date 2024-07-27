@@ -2,6 +2,26 @@ from chempath_api import ChemPathAPI
 from database_operations import get_compound_by_smiles, get_retrosynthesis_data, store_retrosynthesis_informed_optimization
 from chempath_core import retrosynthesis_informed_optimization
 
+def add_compound(api):
+    name = input("Enter compound name: ")
+    smiles = input("Enter SMILES string: ")
+    molecular_weight = float(input("Enter molecular weight: "))
+    logp = float(input("Enter LogP value: "))
+    h_bond_donors = int(input("Enter number of H-bond donors: "))
+    h_bond_acceptors = int(input("Enter number of H-bond acceptors: "))
+
+    compound = {
+        'name': name,
+        'smiles': smiles,
+        'molecular_weight': molecular_weight,
+        'logp': logp,
+        'h_bond_donors': h_bond_donors,
+        'h_bond_acceptors': h_bond_acceptors
+    }
+
+    api.add_compound(compound)
+    print(f"Compound {name} added successfully.")
+
 def main():
     api = ChemPathAPI("C:/Users/Dr. Contessa Petrini/ChemPath/chempath_database.db")
 
@@ -26,16 +46,16 @@ def main():
         print("17. Train ML models")
         print("18. Predict retrosynthesis feasibility")
         print("19. Predict reaction class")
-        print("20. Exit")
+        print("20. AI-driven Optimization Prioritization")
+        print("21. Exit")
 
-        choice = input("Enter your choice (1-20): ")
+        choice = input("Enter your choice (1-21): ")
 
         if choice == '1':
             # Implement search compounds
             pass
         elif choice == '2':
-            # Implement add compound
-            pass
+            add_compound(api)
         elif choice == '3':
             # Implement get therapeutic areas
             pass
@@ -97,11 +117,22 @@ def main():
             reaction_class = api.predict_reaction_class(smiles)
             print(f"Predicted reaction class: {reaction_class}")
         elif choice == '20':
+            compounds = api.get_all_compounds()
+            optimized_compounds = api.optimize_compounds(compounds)
+            print("Top 5 compounds prioritized for optimization:")
+            for i, compound in enumerate(optimized_compounds[:5], 1):
+                print(f"\n{i}. {compound['name']}:")
+                print(f"   Priority Score: {compound['optimization_priority']:.2f}")
+                print(f"   Molecular Weight: {compound['molecular_weight']:.2f}")
+                print(f"   LogP: {compound['logp']:.2f}")
+                print(f"   H-Bond Donors: {compound['h_bond_donors']}")
+                print(f"   H-Bond Acceptors: {compound['h_bond_acceptors']}")
+        elif choice == '21':
             print("Thank you for using ChemPath. Goodbye!")
             api.close_connection()
             break
         else:
             print("Invalid choice. Please try again.")
+
 if __name__ == "__main__":
     main()
-

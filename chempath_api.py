@@ -6,6 +6,7 @@ from chempath_core import train_ml_model
 from chempath_ml_models import (train_retrosynthesis_model, train_reaction_prediction_model,
                                 predict_retrosynthesis, predict_reaction, smiles_to_fingerprint)
 import numpy as np
+from ai_optimization import train_optimization_model, prioritize_optimization_strategies
 
 class ChemPathAPI:
     def table_exists(self, table_name):
@@ -24,7 +25,18 @@ class ChemPathAPI:
             create_tables(self.conn)
         self.model, self.scaler = train_ml_model(self.conn)
 
+    def get_all_compounds(self):
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT name, molecular_weight, logp, h_bond_donors, h_bond_acceptors FROM plant_compounds")
+        compounds = [{'name': row[0], 'molecular_weight': row[1], 'logp': row[2], 'h_bond_donors': row[3], 'h_bond_acceptors': row[4]} for row in cursor.fetchall()]
+        print(f"Retrieved {len(compounds)} compounds from the database.")
+        return compounds
 
+
+    def get_optimization_data(self):
+        # This is a placeholder. In a real scenario, you'd fetch historical optimization data.
+        return [{'molecular_weight': 300, 'logp': 2.5, 'h_bond_donors': 2, 'h_bond_acceptors': 5, 'optimization_score': 0.8},
+                {'molecular_weight': 400, 'logp': 3.5, 'h_bond_donors': 1, 'h_bond_acceptors': 7, 'optimization_score': 0.6}]
 
     def search(self, query=None, filters=None, page=1, per_page=10):
         return search_compounds(self.conn, query, filters, page, per_page)
@@ -89,6 +101,12 @@ class ChemPathAPI:
     def search_compounds(self, query):
         from chempath_core import search_compounds
         return search_compounds(self.conn, query)
+    
+    def optimize_compounds(self, compounds):
+        optimization_data = self.get_optimization_data()
+        optimization_model = train_optimization_model(optimization_data)
+        prioritized_compounds = prioritize_optimization_strategies(compounds, optimization_model)
+        return prioritized_compounds
 
     
     def __init__(self, db_path):
