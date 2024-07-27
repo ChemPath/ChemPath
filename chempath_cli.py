@@ -3,7 +3,7 @@ from database_operations import get_compound_by_smiles, get_retrosynthesis_data,
 from chempath_core import retrosynthesis_informed_optimization
 
 def main():
-    api = ChemPathAPI("path_to_your_database.db")
+    api = ChemPathAPI("C:/Users/Dr. Contessa Petrini/ChemPath/chempath_database.db")
 
     while True:
         print("\nChemPath Menu:")
@@ -23,9 +23,12 @@ def main():
         print("14. Perform virtual screening")
         print("15. Analyze structure-activity relationships")
         print("16. Retrosynthesis-Informed Optimization")
-        print("17. Exit")
+        print("17. Train ML models")
+        print("18. Predict retrosynthesis feasibility")
+        print("19. Predict reaction class")
+        print("20. Exit")
 
-        choice = input("Enter your choice (1-17): ")
+        choice = input("Enter your choice (1-20): ")
 
         if choice == '1':
             # Implement search compounds
@@ -83,11 +86,22 @@ def main():
             else:
                 print("Compound not found in the database.")
         elif choice == '17':
+            api.train_ml_models()
+            print("ML models trained successfully.")
+        elif choice == '18':
+            smiles = input("Enter SMILES string: ")
+            feasibility = api.predict_retrosynthesis_feasibility(smiles)
+            print(f"Retrosynthesis feasibility: {feasibility}")
+        elif choice == '19':
+            smiles = input("Enter SMILES string: ")
+            reaction_class = api.predict_reaction_class(smiles)
+            print(f"Predicted reaction class: {reaction_class}")
+        elif choice == '20':
             print("Thank you for using ChemPath. Goodbye!")
             api.close_connection()
             break
         else:
             print("Invalid choice. Please try again.")
-
 if __name__ == "__main__":
     main()
+

@@ -112,6 +112,7 @@ def get_therapeutic_areas(conn):
 def create_tables(conn):
     try:
         cursor = conn.cursor()
+        print("Executing CREATE TABLE command...")
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS plant_compounds (
                 id INTEGER PRIMARY KEY,
@@ -126,12 +127,16 @@ def create_tables(conn):
                 h_bond_donors INTEGER,
                 h_bond_acceptors INTEGER,
                 polar_surface_area REAL,
-                rotatable_bonds INTEGER
+                rotatable_bonds INTEGER,
+                retrosynthesis_feasibility REAL,
+                reaction_class INTEGER
             )
         ''')
-        print("Table 'plant_compounds' created successfully")
+        print("CREATE TABLE command executed successfully")
+        conn.commit()
+        print("Changes committed to database")
     except sqlite3.Error as e:
-        print(e)
+        print(f"Error creating table: {e}")
 
 
         cursor.execute('''
@@ -604,14 +609,37 @@ def comprehensive_analysis(api, smiles):
     }
 
 def load_sample_data(conn):
-    sample_data = [
-        ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant, anti-inflammatory", "Traditional Chinese Medicine for cardiovascular health"),
-        ("Curcumin", "COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC", 368.38, 3.29, "Turmeric (Curcuma longa)", "Anti-inflammatory, antioxidant", "Ayurvedic medicine for various ailments"),
-    ]
+    sample_data = {
+        "Antioxidant": [
+            ("Quercetin", "O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O", 302.24, 1.54, "Various fruits and vegetables", "Antioxidant", "Traditional Chinese Medicine for cardiovascular health"),
+            ("Resveratrol", "OC1=CC(=CC(=C1)O)C=CC2=CC(=C(C=C2)O)O", 228.24, 3.1, "Grapes, berries", "Antioxidant", "Cardiovascular health"),
+            ("Epigallocatechin gallate", "O=C(OC1=CC(=C(C(=C1O)O)O)C2C(C(C3C(=O)C(=C(C(=C3C2=O)O)O)O)O)O)C4=CC(=C(C(=C4)O)O)O", 458.37, 1.16, "Green tea", "Antioxidant", "Cancer prevention"),
+            ("Lycopene", "CC(C)=CCC/C(C)=C/C=C/C(C)=C/C=C/C(C)=C/C=C/C=C(C)/C=C/C=C(C)/C=C/C=C(C)/C=C/C=C=C(C)/C=C/C=C(C)/C=C/C=C(C)/C", 536.87, 17.64, "Tomatoes", "Antioxidant", "Prostate health"),
+            ("Sulforaphane", "CS(=O)CCCCN=C=S", 177.29, 0.72, "Broccoli", "Antioxidant", "Cancer prevention"),
+        ],
+        "Anti-inflammatory": [
+            ("Curcumin", "COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC", 368.38, 3.29, "Turmeric (Curcuma longa)", "Anti-inflammatory", "Ayurvedic medicine for various ailments"),
+            ("Capsaicin", "COC1=C(C=C(C=C1)CNC(=O)CCCC/C=C/C(C)C)O", 305.41, 3.04, "Chili peppers", "Anti-inflammatory", "Traditional medicine for pain management"),
+            ("Gingerol", "CCCCCC(O)CC(=O)CCc1ccc(O)c(OC)c1", 294.39, 3.85, "Ginger", "Anti-inflammatory", "Digestive health"),
+            ("Berberine", "COc1ccc2cc3[n+](cc2c1OC)CCc1cc2c(cc1-3)OCO2", 336.36, -1.3, "Berberis plants", "Anti-inflammatory", "Traditional Chinese Medicine for various ailments"),
+            ("Omega-3 fatty acids", "CCCCC/C=C\C/C=C\C/C=C\C/C=C\C/C=C\CCCC(=O)O", 302.45, 6.1, "Fish oil", "Anti-inflammatory", "Cardiovascular health"),
+        ],
+        "Antimicrobial": [
+            ("Allicin", "O=S(SC/C=C)C/C=C", 162.27, 1.35, "Garlic", "Antimicrobial", "Immune system support"),
+            ("Thymol", "CC(C)C1=CC(=C(C=C1)O)C(C)C", 150.22, 3.3, "Thyme", "Antimicrobial", "Natural preservative"),
+            ("Carvacrol", "CC(C)C1=CC(=C(C=C1)C(C)C)O", 150.22, 3.4, "Oregano", "Antimicrobial", "Natural preservative"),
+            ("Eugenol", "COC1=C(C=CC(=C1)CC=C)O", 164.20, 2.27, "Clove", "Antimicrobial", "Dental health"),
+            ("Cinnamaldehyde", "O=CC=CC1=CC=CC=C1", 132.16, 2.12, "Cinnamon", "Antimicrobial", "Food preservative"),
+        ],
+    }
+
+    for activity, compounds in sample_data.items():
+        for compound in compounds:
+            insert_compound(conn, compound)
     
-    for compound in sample_data:
-        insert_compound(conn, compound)
-    print(f"Inserted {len(sample_data)} sample compounds")
+    print(f"Inserted {sum(len(compounds) for compounds in sample_data.values())} sample compounds")
+
+
 
 
 def main():

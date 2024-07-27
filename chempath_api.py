@@ -3,13 +3,27 @@ from rdkit import Chem
 from chempath_core import optimize_structure
 from chempath_core import create_connection, search_compounds, insert_compound, get_therapeutic_areas, predict_therapeutic_areas, optimize_structure
 from chempath_core import train_ml_model
+from chempath_ml_models import (train_retrosynthesis_model, train_reaction_prediction_model,
+                                predict_retrosynthesis, predict_reaction, smiles_to_fingerprint)
+import numpy as np
 
 class ChemPathAPI:
+    def table_exists(self, table_name):
+        cursor = self.conn.cursor()
+        cursor.execute(f"SELECT name FROM sqlite_master WHERE type='table' AND name='{table_name}'")
+        return cursor.fetchone() is not None
+
     def __init__(self, db_path):
         self.conn = create_connection(db_path)
+        print("About to create tables")
         create_tables(self.conn)
+        print("Tables created successfully")
         create_indexes(self.conn)
+        if not self.table_exists('plant_compounds'):
+            print("plant_compounds table does not exist. Creating now...")
+            create_tables(self.conn)
         self.model, self.scaler = train_ml_model(self.conn)
+
 
 
     def search(self, query=None, filters=None, page=1, per_page=10):
@@ -48,6 +62,29 @@ class ChemPathAPI:
     def train_ml_model(self, conn):
         from chempath_core import train_ml_model
         return train_ml_model(conn)
+    
+    def train_ml_models(self):
+        # Fetch data from the database
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT smiles, retrosynthesis_feasibility, reaction_class FROM compounds")
+        data = cursor.fetchall()
+
+        X = np.array([smiles_to_fingerprint(row[0]) for row in data])
+        y_retro = np.array([row[1] for row in data])
+        y_reaction = np.array([row[2] for row in data])
+
+        self.retro_model, self.retro_scaler = train_retrosynthesis_model(X, y_retro)
+        self.reaction_model, self.reaction_scaler = train_reaction_prediction_model(X, y_reaction)
+
+    def predict_retrosynthesis_feasibility(self, smiles):
+        return predict_retrosynthesis(self.retro_model, self.retro_scaler, smiles)
+
+    def predict_reaction_class(self, smiles):
+        return predict_reaction(self.reaction_model, self.reaction_scaler, smiles)
+
+
+
+
     
     def search_compounds(self, query):
         from chempath_core import search_compounds
