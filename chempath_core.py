@@ -8,7 +8,7 @@ from structural_optimization import functional_group_substitution, ring_system_a
 import requests
 from ml_model import predict_therapeutic_areas as ml_predict_therapeutic_areas
 from ml_model import train_model
-
+from retrosynthesis import perform_retrosynthesis as core_perform_retrosynthesis
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,6 +23,48 @@ def create_connection(db_file):
     except sqlite3.Error as e:
         print(e)
     return conn
+
+def search_compounds(conn, query):
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT name, smiles, molecular_weight, logp 
+        FROM plant_compounds 
+        WHERE name LIKE ? OR smiles LIKE ?
+    """, ('%'+query+'%', '%'+query+'%'))
+    return cursor.fetchall()
+
+
+def get_compound_by_smiles(conn, smiles):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM compounds WHERE smiles = ?", (smiles,))
+    return cursor.fetchone()
+
+def get_retrosynthesis_data(conn, compound_id):
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM retrosynthesis_data WHERE compound_id = ?", (compound_id,))
+    return cursor.fetchall()
+
+def store_retrosynthesis_informed_optimization(conn, compound_id, optimized_smiles):
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO retrosynthesis_informed_optimizations (compound_id, optimized_smiles)
+        VALUES (?, ?)
+    """, (compound_id, optimized_smiles))
+    conn.commit()
+
+
+def optimize_structure(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    optimized_mol = functional_group_substitution(mol)
+    optimized_mol = ring_system_alteration(optimized_mol)
+    optimized_mol = scaffold_hopping(optimized_mol)
+    return Chem.MolToSmiles(optimized_mol)
+
+def perform_retrosynthesis(smiles):
+    # Implement your retrosynthesis logic here
+    # For now, let's return a placeholder result
+    return [f"Step 1: Break {smiles} into smaller fragments", "Step 2: Identify potential precursors", "Step 3: Suggest synthetic routes"]
+
 
 def calculate_descriptors(smiles):
     mol = Chem.MolFromSmiles(smiles)

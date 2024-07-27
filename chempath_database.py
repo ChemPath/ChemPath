@@ -15,6 +15,9 @@ from database_operations import create_connection, get_compound_by_smiles
 from optimization import optimize_compound
 from retrosynthesis import retrosynthetic_analysis
 from chempath_core import create_tables, create_indexes
+import tkinter as tk
+from chempath_ui import ChemPathUI
+from chempath_core import create_connection, create_tables, create_indexes
 
 print("Script started")
 
@@ -40,7 +43,9 @@ import requests
 from rdkit import Chem
 from rdkit.Chem import Descriptors
 import pandas as pd
-
+import tkinter as tk
+from chempath_ui import ChemPathUI
+from chempath_core import create_connection, create_tables, create_indexes
 
 
 def get_all_compounds(conn):
@@ -621,7 +626,7 @@ def load_sample_data(conn):
             ("Capsaicin", "COC1=C(C=C(C=C1)CNC(=O)CCCC/C=C/C(C)C)O", 305.41, 3.04, "Chili peppers", "Anti-inflammatory", "Traditional medicine for pain management"),
             ("Gingerol", "CCCCCC(O)CC(=O)CCc1ccc(O)c(OC)c1", 294.39, 3.85, "Ginger", "Anti-inflammatory", "Digestive health"),
             ("Berberine", "COc1ccc2cc3[n+](cc2c1OC)CCc1cc2c(cc1-3)OCO2", 336.36, -1.3, "Berberis plants", "Anti-inflammatory", "Traditional Chinese Medicine for various ailments"),
-            ("Omega-3 fatty acids", "CCCCC/C=C\C/C=C\C/C=C\C/C=C\C/C=C\CCCC(=O)O", 302.45, 6.1, "Fish oil", "Anti-inflammatory", "Cardiovascular health"),
+            ("Omega-3 fatty acids", r"CCCCC/C=C\C/C=C\C/C=C\C/C=C\C/C=C\CCCC(=O)O", 302.45, 6.1, "Fish oil", "Anti-inflammatory", "Cardiovascular health"),
         ],
         "Antimicrobial": [
             ("Allicin", "O=S(SC/C=C)C/C=C", 162.27, 1.35, "Garlic", "Antimicrobial", "Immune system support"),
@@ -641,22 +646,30 @@ def load_sample_data(conn):
 
 
 
+# chempath_database.py
+
+import tkinter as tk
+from chempath_ui import ChemPathUI
+from chempath_core import create_connection, create_tables, create_indexes
+
 def main():
-    database = Path("chempath_database.db")
-    conn = create_connection(database)
+    conn = create_connection("chempath_database.db")
     if conn is not None:
         create_tables(conn)
-        load_sample_data(conn)
+        create_indexes(conn)
+        
+        root = tk.Tk()
+        app = ChemPathUI(root)
+        root.mainloop()
+        
         conn.close()
     else:
         print("Error! Cannot create the database connection.")
 
 if __name__ == "__main__":
-    conn = create_connection("chempath.db")
-    create_tables(conn)
-    create_indexes(conn)
-    add_sample_compounds(conn)
-    conn.close()
+    main()
+
+
 
 
 
