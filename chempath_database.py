@@ -1,3 +1,5 @@
+import psycopg2
+from psycopg2 import sql
 import requests
 from rdkit import Chem
 from chempath_core import (
@@ -114,47 +116,59 @@ def get_therapeutic_areas(conn):
     areas = cursor.fetchall()
     return [area[0] for area in areas if area[0]]
 
-def create_connection(db_file):
-    return sqlite3.connect(db_file, timeout=10, check_same_thread=False)
+def create_connection(db_name, user, password, host='localhost', port='5432'):
+    """Create a database connection to a PostgreSQL database"""
+    conn = None
     try:
-        conn = sqlite3.connect(db_file)
+        conn = psycopg2.connect(
+            dbname=db_name,
+            user=user,
+            password=password,
+            host=host,
+            port=port
+        )
+        print(f"Connected to PostgreSQL")
         return conn
-    except sqlite3.Error as e:
+    except psycopg2.Error as e:
         print(e)
-    return None
+    return conn
 
-def create_tables(conn):
+
+def create_table(conn):
+    """Create the plant_compounds table"""
     try:
         cursor = conn.cursor()
         cursor.execute('''
-        CREATE TABLE IF NOT EXISTS plant_compounds (
-            id INTEGER PRIMARY KEY,
-            name TEXT NOT NULL,
-            smiles TEXT NOT NULL,
-            molecular_weight REAL,
-            logp REAL,
-            plant_source TEXT,
-            biological_activity TEXT,
-            traditional_use TEXT,
-            h_bond_donors INTEGER,
-            h_bond_acceptors INTEGER,
-            polar_surface_area REAL,
-            rotatable_bonds INTEGER
-        )
+            CREATE TABLE IF NOT EXISTS plant_compounds (
+                id SERIAL PRIMARY KEY,
+                name TEXT NOT NULL,
+                smiles TEXT,
+                molecular_weight REAL,
+                logp REAL,
+                plant_source TEXT,
+                biological_activity TEXT,
+                traditional_use TEXT,
+                toxicity_data TEXT,
+                bioavailability REAL,
+                synthesis_difficulty INTEGER,
+                h_bond_donors INTEGER,
+                h_bond_acceptors INTEGER,
+                polar_surface_area REAL,
+                rotatable_bonds INTEGER
+            )
         ''')
+        print("Table 'plant_compounds' created successfully")
         
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS predicted_therapeutic_areas (
-            id INTEGER PRIMARY KEY,
-            smiles TEXT NOT NULL,
-            therapeutic_area TEXT NOT NULL
-        )
-        ''')
+        # Create indexes
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_smiles ON plant_compounds (smiles)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_name ON plant_compounds (name)")
+        cursor.execute("CREATE INDEX IF NOT EXISTS idx_molecular_weight ON plant_compounds (molecular_weight)")
+        print("Indexes created successfully")
         
         conn.commit()
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
+    except psycopg2.Error as e:
+        print(e)
+
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS retrosynthesis_results (

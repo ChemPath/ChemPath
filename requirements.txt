@@ -8,3 +8,4 @@ sqlite3
 tensorflow
 numpy
 flask
+psycopg2-binary==2.9.3
