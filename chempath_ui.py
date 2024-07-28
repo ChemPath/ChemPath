@@ -5,12 +5,18 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from rdkit import Chem
 from rdkit.Chem import Draw
 from chempath_api import ChemPathAPI
+import logging
+import tkinter as tk
+from chempath_core import optimize_structure, predict_properties, retrosynthesize
+from chempath_api import ChemPathAPI
+from chempath_database import create_connection, create_tables, create_indexes, insert_compound
+from chempath_api import ChemPathAPI
 
 class ChemPathUI:
-    def __init__(self, master):
-        self.master = master
-        self.master.title("ChemPath Advanced UI")
-        self.api = ChemPathAPI("chempath_database.db")
+    def __init__(self, root, db_path):
+        self.root = root
+        self.db_path = db_path
+        self.api = ChemPathAPI(db_path)
         
         self.setup_ui()
 

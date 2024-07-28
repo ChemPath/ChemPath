@@ -26,6 +26,31 @@ def analyze_therapeutic_areas(conn):
             area_freq[area] = area_freq.get(area, 0) + 1
     return area_freq
 
+def analyze_compounds_by_ph_and_temperature(conn):
+    """Analyze compounds based on pH and temperature ranges"""
+    cursor = conn.cursor()
+    cursor.execute("""
+        SELECT 
+            CASE 
+                WHEN ph < 7 THEN 'Acidic'
+                WHEN ph = 7 THEN 'Neutral'
+                WHEN ph > 7 THEN 'Basic'
+                ELSE 'Unknown'
+            END AS ph_category,
+            CASE 
+                WHEN temperature < 0 THEN 'Below Freezing'
+                WHEN temperature BETWEEN 0 AND 25 THEN 'Room Temperature'
+                WHEN temperature > 25 THEN 'Above Room Temperature'
+                ELSE 'Unknown'
+            END AS temperature_category,
+            COUNT(*) as compound_count
+        FROM plant_compounds
+        GROUP BY ph_category, temperature_category
+    """)
+    results = cursor.fetchall()
+    for row in results:
+        print(f"pH Category: {row[0]}, Temperature Category: {row[1]}, Compound Count: {row[2]}")
+
 def main():
     conn = create_connection("chempath_database.db")
     if conn is None:

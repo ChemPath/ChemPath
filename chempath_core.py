@@ -18,7 +18,6 @@ def create_connection(db_file):
     conn = None
     try:
         conn = sqlite3.connect(db_file)
-        print(f"Connected to SQLite version: {sqlite3.version}")
         return conn
     except sqlite3.Error as e:
         print(e)
@@ -65,6 +64,8 @@ def perform_retrosynthesis(smiles):
     # For now, let's return a placeholder result
     return [f"Step 1: Break {smiles} into smaller fragments", "Step 2: Identify potential precursors", "Step 3: Suggest synthetic routes"]
 
+from rdkit import Chem
+from rdkit.Chem import Descriptors
 
 def calculate_descriptors(smiles):
     mol = Chem.MolFromSmiles(smiles)
@@ -77,6 +78,33 @@ def calculate_descriptors(smiles):
         'rotatable_bonds': Descriptors.NumRotatableBonds(mol)
     }
 
+def predict_properties(smiles, property_type):
+    """
+    Predict properties of a compound given its SMILES representation.
+    
+    Args:
+    smiles (str): SMILES string of the compound
+    property_type (str): Type of property to predict (e.g., 'solubility', 'logP')
+    
+    Returns:
+    dict: Predicted properties
+    
+    Raises:
+    ValueError: If the SMILES string is invalid or the property type is unsupported
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if not isinstance(mol, Chem.Mol):
+        raise ValueError("Invalid SMILES string")
+    
+    properties = {}
+    if property_type == 'solubility':
+        properties['solubility'] = Descriptors.MolLogP(mol)
+    elif property_type == 'logP':
+        properties['logP'] = Descriptors.MolLogP(mol)
+    else:
+        raise ValueError(f"Unsupported property type: {property_type}")
+    
+    return properties
 def fetch_random_compound_name():
     common_compounds = ["Aspirin", "Caffeine", "Ibuprofen", "Acetaminophen", "Penicillin", "Morphine", "Quinine", "Insulin", "Dopamine", "Serotonin"]
     return random.choice(common_compounds)
@@ -204,17 +232,66 @@ def create_indexes(conn):
     conn.commit()
     print("Indexes created successfully")
 
-def optimize_structure(smiles, optimization_type, params):
-    mol = Chem.MolFromSmiles(smiles)
-    if optimization_type == 'functional_group':
-        return functional_group_substitution(mol, params['target'], params['replacement'])
-    elif optimization_type == 'ring_system':
-        return ring_system_alteration(mol, params['alteration_type'])
-    elif optimization_type == 'scaffold':
-        return scaffold_hopping(mol, params['scaffold_library'])
-    else:
-        raise ValueError("Invalid optimization type")
+def optimize_structure(compound, goal, params):
+    try:
+        mol = Chem.MolFromSmiles(compound)
+        if mol is None:
+            raise ValueError("Invalid SMILES string")
+
+        if goal == 'functional_group':
+            # Implement functional group optimization logic
+            target = params.get('target')
+            replacement = params.get('replacement')
+            if target and replacement:
+                # Replace functional group
+                optimized_mol = Chem.ReplaceSubstructs(mol, Chem.MolFromSmiles(target), Chem.MolFromSmiles(replacement))[0]
+                return Chem.MolToSmiles(optimized_mol)
+            else:
+                raise ValueError("Missing target or replacement functional group")
+        elif goal == 'maximize_solubility':
+            # Implement solubility optimization logic
+            optimized_mol = Chem.AddHs(mol)
+            AllChem.EmbedMolecule(optimized_mol)
+            AllChem.MMFFOptimizeMolecule(optimized_mol)
+            return Chem.MolToSmiles(optimized_mol)
+        else:
+            raise ValueError("Invalid optimization type")
     
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
+
+def retrosynthesize(smiles, reaction_database):
+    """
+    Perform retrosynthetic analysis on a given compound.
+    
+    Args:
+    smiles (str): SMILES string of the target compound
+    reaction_database (str): Path to the reaction database file
+    
+    Returns:
+    list: Proposed synthetic routes
+    
+    Raises:
+    ValueError: If the SMILES string is invalid
+    FileNotFoundError: If the reaction database file is not found
+    """
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError("Invalid SMILES string")
+    
+    try:
+        # In a real implementation, you would use the reaction database
+        # to propose synthetic routes
+        # For now, just return some placeholder routes
+        proposed_routes = [
+            f"Route 1: Break bond at position 1",
+            f"Route 2: Add functional group at position 2",
+            f"Route 3: Substitute group at position 3"
+        ]
+        return proposed_routes
+    except FileNotFoundError:
+        raise FileNotFoundError("Reaction database file not found")
 def retrosynthesis_informed_optimization(smiles, retrosynthesis_data):
     if retrosynthesis_data is None:
         print("No retrosynthesis data available. Performing standard optimization.")
@@ -268,19 +345,46 @@ def chemical_space_exploration(smiles, num_iterations=10):
 
 from pathlib import Path
 
-def train_ml_model(conn):
-    model, scaler = train_model(conn)
-    return model, scaler
-def main():
-    database = Path("chempath_database.db")
-    conn = create_connection(database)
+import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+import sqlite3
 
-    if conn is not None:
-        create_tables(conn)
-        create_indexes(conn)
-        conn.close()
-    else:
-        print("Error! Cannot create the database connection.")
+from sklearn.dummy import DummyClassifier
+from sklearn.preprocessing import StandardScaler
+
+def train_ml_model(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM plant_compounds")
+        data = cursor.fetchall()
+       
+        if len(data) < 3:
+            print("Insufficient data for training. Using a dummy model.")
+            return DummyClassifier(strategy="most_frequent"), None
+
+        columns = ['id', 'name', 'smiles', 'molecular_weight', 'logp', 'plant_source', 'biological_activity', 'traditional_use', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']
+        df = pd.DataFrame(data, columns=columns)
+       
+        X = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']]
+        y = df['biological_activity']
+       
+        scaler = StandardScaler()
+        X_scaled = scaler.fit_transform(X)
+       
+        model = RandomForestClassifier(random_state=42)
+        model.fit(X_scaled, y)
+       
+        return model, scaler
+   
+    except Exception as e:
+        print(f"An error occurred during model training: {e}")
+        return None, None
+
+
+def main():
+    # Add your main program logic here
+    pass
 
 if __name__ == '__main__':
     main()

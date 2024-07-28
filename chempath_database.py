@@ -16,7 +16,7 @@ from optimization import optimize_compound
 from retrosynthesis import retrosynthetic_analysis
 from chempath_core import create_tables, create_indexes
 import tkinter as tk
-from chempath_ui import ChemPathUI
+from chempath_utils import validate_smiles
 from chempath_core import create_connection, create_tables, create_indexes
 
 print("Script started")
@@ -114,34 +114,47 @@ def get_therapeutic_areas(conn):
     areas = cursor.fetchall()
     return [area[0] for area in areas if area[0]]
 
+def create_connection(db_file):
+    return sqlite3.connect(db_file, timeout=10, check_same_thread=False)
+    try:
+        conn = sqlite3.connect(db_file)
+        return conn
+    except sqlite3.Error as e:
+        print(e)
+    return None
+
 def create_tables(conn):
     try:
         cursor = conn.cursor()
-        print("Executing CREATE TABLE command...")
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS plant_compounds (
-                id INTEGER PRIMARY KEY,
-                name TEXT NOT NULL UNIQUE,
-                smiles TEXT,
-                molecular_weight REAL,
-                logp REAL,
-                plant_source TEXT,
-                biological_activity TEXT,
-                biological_activities TEXT,
-                traditional_use TEXT,
-                h_bond_donors INTEGER,
-                h_bond_acceptors INTEGER,
-                polar_surface_area REAL,
-                rotatable_bonds INTEGER,
-                retrosynthesis_feasibility REAL,
-                reaction_class INTEGER
-            )
+        CREATE TABLE IF NOT EXISTS plant_compounds (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            smiles TEXT NOT NULL,
+            molecular_weight REAL,
+            logp REAL,
+            plant_source TEXT,
+            biological_activity TEXT,
+            traditional_use TEXT,
+            h_bond_donors INTEGER,
+            h_bond_acceptors INTEGER,
+            polar_surface_area REAL,
+            rotatable_bonds INTEGER
+        )
         ''')
-        print("CREATE TABLE command executed successfully")
+        
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS predicted_therapeutic_areas (
+            id INTEGER PRIMARY KEY,
+            smiles TEXT NOT NULL,
+            therapeutic_area TEXT NOT NULL
+        )
+        ''')
+        
         conn.commit()
-        print("Changes committed to database")
+    
     except sqlite3.Error as e:
-        print(f"Error creating table: {e}")
+        print(f"An error occurred: {e}")
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS retrosynthesis_results (
@@ -239,18 +252,51 @@ def fetch_pubchem_data(compound_name):
     
     return None
 
-def insert_compound(conn, compound):
-    """Insert a new compound into the plant_compounds table"""
-    sql = '''INSERT INTO plant_compounds(name, smiles, molecular_weight, logp, plant_source, biological_activity, traditional_use)
-             VALUES(?,?,?,?,?,?,?)'''
-    try:
-        cursor = conn.cursor()
-        cursor.execute(sql, compound)
-        conn.commit()
-        return cursor.lastrowid
-    except sqlite3.Error as e:
-        print(e)
-        return None
+def populate_sample_data(conn):
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM plant_compounds")
+    sample_data = [
+        ('Aspirin', 'CC(=O)OC1=CC=CC=C1C(=O)O', 180.16, 1.19, 'Willow bark', 'Anti-inflammatory', 'Pain relief', 1, 4, 63.6, 3),
+        ('Caffeine', 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C', 194.19, -0.07, 'Coffee beans', 'Stimulant', 'Alertness', 0, 6, 58.4, 0),
+        ('Quinine', 'COC1=CC2=C(C=CN=C2C=C1)C(C3CC4CCN3CC4C=C)O', 324.42, 3.44, 'Cinchona bark', 'Antimalarial', 'Fever reduction', 1, 4, 45.6, 4)
+    ]
+    cursor.executemany('''INSERT OR REPLACE INTO plant_compounds 
+                          (name, smiles, molecular_weight, logp, plant_source, biological_activity, traditional_use, h_bond_donors, h_bond_acceptors, polar_surface_area, rotatable_bonds) 
+                          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', sample_data)
+    conn.commit()
+
+class ChemPathAPI:
+    def __init__(self, db_file):
+        self.conn = sqlite3.connect(db_file)
+        self.cursor = self.conn.cursor()
+
+    def insert_compound(self, compound_data):
+        try:
+            validate_smiles(compound_data.get('smiles'))
+            query = """
+                INSERT INTO plant_compounds (
+                    name, smiles, molecular_weight, logp, plant_source, biological_activity,
+                    traditional_use, h_bond_donors, h_bond_acceptors,
+                    polar_surface_area, rotatable_bonds, ph, temperature
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """
+            values = (
+                compound_data.get('name'), compound_data.get('smiles'), compound_data.get('molecular_weight'),
+                compound_data.get('logp'), compound_data.get('plant_source'), compound_data.get('biological_activity'),
+                compound_data.get('traditional_use'), compound_data.get('h_bond_donors'), compound_data.get('h_bond_acceptors'),
+                compound_data.get('polar_surface_area'), compound_data.get('rotatable_bonds'),
+                compound_data.get('ph'), compound_data.get('temperature')
+            )
+            self.cursor.execute(query, values)
+            self.conn.commit()
+            return self.cursor.lastrowid
+        except Exception as e:
+            print(f"Error inserting compound: {e}")
+            self.conn.rollback()
+            return None
+
+
+
 
 def add_sample_compounds(conn):
     sample_compounds = [
@@ -364,6 +410,27 @@ def expand_dataset_from_pubchem():
 
     print("Dataset expansion completed.")
 
+def create_table(conn):
+    """Create the plant_compounds table"""
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS plant_compounds (
+                id INTEGER PRIMARY KEY,
+                name TEXT NOT NULL,
+                smiles TEXT,
+                molecular_weight REAL,
+                logp REAL,
+                plant_source TEXT,
+                biological_activity TEXT,
+                traditional_use TEXT,
+                ph REAL,
+                temperature REAL
+            )
+        ''')
+        print("Table 'plant_compounds' created successfully")
+    except sqlite3.Error as e:
+        print(e)
 
 
 
@@ -588,6 +655,35 @@ def get_retrosynthesis_result(conn, compound_id):
 
 print("About to check if __name__ == '__main__'")
 
+def create_tables(conn):
+    cursor = conn.cursor()
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS plant_compounds (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            smiles TEXT,
+            molecular_weight REAL,
+            logp REAL,
+            plant_source TEXT,
+            biological_activities TEXT,
+            traditional_use TEXT,
+            h_bond_donors INTEGER,
+            h_bond_acceptors INTEGER,
+            polar_surface_area REAL,
+            rotatable_bonds INTEGER
+        )
+    ''')
+    conn.commit()
+
+from rdkit import Chem
+
+def validate_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError(f"Invalid SMILES string: {smiles}")
+    return True
+
+
 def comprehensive_analysis(api, smiles):
     print(f"\nPerforming comprehensive analysis for compound: {smiles}")
     
@@ -643,31 +739,58 @@ def load_sample_data(conn):
     
     print(f"Inserted {sum(len(compounds) for compounds in sample_data.values())} sample compounds")
 
+from rdkit import Chem
 
+def validate_compound_data(name, smiles, molecular_weight, logp, plant_source, biological_activities, traditional_use):
+    if not name or not isinstance(name, str):
+        raise ValueError("Name must be a non-empty string")
+    if not smiles or not isinstance(smiles, str):
+        raise ValueError("SMILES must be a non-empty string")
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        raise ValueError("Invalid SMILES string")
+    if not isinstance(molecular_weight, (int, float)) or molecular_weight <= 0:
+        raise ValueError("Molecular weight must be a positive number")
+    if not isinstance(logp, (int, float)):
+        raise ValueError("LogP must be a number")
+    if not isinstance(plant_source, str):
+        raise ValueError("Plant source must be a string")
+    if not isinstance(biological_activities, str):
+        raise ValueError("Biological activities must be a string")
+    if not isinstance(traditional_use, str):
+        raise ValueError("Traditional use must be a string")
 
-
-# chempath_database.py
 
 import tkinter as tk
 from chempath_ui import ChemPathUI
 from chempath_core import create_connection, create_tables, create_indexes
 
 def main():
-    conn = create_connection("chempath_database.db")
-    if conn is not None:
-        create_tables(conn)
-        create_indexes(conn)
-        
-        root = tk.Tk()
-        app = ChemPathUI(root)
-        root.mainloop()
-        
-        conn.close()
-    else:
-        print("Error! Cannot create the database connection.")
+    db_path = "chempath_database.db"
+    conn = None
+    try:
+        conn = create_connection(db_path)
+        if conn is not None:
+            create_tables(conn)
+            create_indexes(conn)
+            
+            root = tk.Tk()
+            app = ChemPathUI(root, db_path)
+            root.mainloop()
+        else:
+            print("Error! Cannot create the database connection.")
+    except Exception as e:
+        print(f"Error occurred: {e}")
+    finally:
+        if conn is not None:
+            conn.close()
+
+import logging
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO)
     main()
+
 
 
 

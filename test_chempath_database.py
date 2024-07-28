@@ -68,6 +68,32 @@ class TestChempathDatabase(unittest.TestCase):
         
         with self.assertRaises(ValueError):
             validate_compound_data("Test", "C1=CC=CC=C1", -100.0, 1.5, "Plant", "Activity", "Use")
+    import unittest
+import sqlite3
+from chempath_database import create_connection, create_table, insert_compound
+
+class TestChempathDatabase(unittest.TestCase):
+    def setUp(self):
+        self.conn = create_connection(':memory:')
+        create_table(self.conn)
+
+    def tearDown(self):
+        self.conn.close()
+
+    def test_insert_compound_with_ph_and_temperature(self):
+        compound = ("Test Compound", "C1=CC=CC=C1", 100.0, 1.5, "Test Plant", "Test Activity", "Test Use", 7.0, 25.0)
+        compound_id = insert_compound(self.conn, compound)
+        self.assertIsNotNone(compound_id)
+
+        cursor = self.conn.cursor()
+        cursor.execute("SELECT * FROM plant_compounds WHERE id = ?", (compound_id,))
+        result = cursor.fetchone()
+        self.assertEqual(result[1], "Test Compound")
+        self.assertEqual(result[8], 7.0)  # pH
+        self.assertEqual(result[9], 25.0)  # temperature
+
+if __name__ == '__main__':
+    unittest.main()
 
     def tearDown(self):
         self.conn.close()

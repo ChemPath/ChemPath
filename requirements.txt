@@ -7,3 +7,4 @@ joblib
 sqlite3
 tensorflow
 numpy
+flask
