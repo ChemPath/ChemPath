@@ -1,5 +1,3 @@
-import psycopg2
-from psycopg2 import sql
 import requests
 from rdkit import Chem
 from chempath_core import (
@@ -46,7 +44,6 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 import pandas as pd
 import tkinter as tk
-from chempath_ui import ChemPathUI
 from chempath_core import create_connection, create_tables, create_indexes
 
 
@@ -116,59 +113,47 @@ def get_therapeutic_areas(conn):
     areas = cursor.fetchall()
     return [area[0] for area in areas if area[0]]
 
-def create_connection(db_name, user, password, host='localhost', port='5432'):
-    """Create a database connection to a PostgreSQL database"""
-    conn = None
+def create_connection(db_file):
+    return sqlite3.connect(db_file, timeout=10, check_same_thread=False)
     try:
-        conn = psycopg2.connect(
-            dbname=db_name,
-            user=user,
-            password=password,
-            host=host,
-            port=port
-        )
-        print(f"Connected to PostgreSQL")
+        conn = sqlite3.connect(db_file)
         return conn
-    except psycopg2.Error as e:
+    except sqlite3.Error as e:
         print(e)
-    return conn
+    return None
 
-
-def create_table(conn):
-    """Create the plant_compounds table"""
+def create_tables(conn):
     try:
         cursor = conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS plant_compounds (
-                id SERIAL PRIMARY KEY,
-                name TEXT NOT NULL,
-                smiles TEXT,
-                molecular_weight REAL,
-                logp REAL,
-                plant_source TEXT,
-                biological_activity TEXT,
-                traditional_use TEXT,
-                toxicity_data TEXT,
-                bioavailability REAL,
-                synthesis_difficulty INTEGER,
-                h_bond_donors INTEGER,
-                h_bond_acceptors INTEGER,
-                polar_surface_area REAL,
-                rotatable_bonds INTEGER
-            )
+        CREATE TABLE IF NOT EXISTS plant_compounds (
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL,
+            smiles TEXT NOT NULL,
+            molecular_weight REAL,
+            logp REAL,
+            plant_source TEXT,
+            biological_activity TEXT,
+            traditional_use TEXT,
+            h_bond_donors INTEGER,
+            h_bond_acceptors INTEGER,
+            polar_surface_area REAL,
+            rotatable_bonds INTEGER
+        )
         ''')
-        print("Table 'plant_compounds' created successfully")
         
-        # Create indexes
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_smiles ON plant_compounds (smiles)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_name ON plant_compounds (name)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_molecular_weight ON plant_compounds (molecular_weight)")
-        print("Indexes created successfully")
+        cursor.execute('''
+        CREATE TABLE IF NOT EXISTS predicted_therapeutic_areas (
+            id INTEGER PRIMARY KEY,
+            smiles TEXT NOT NULL,
+            therapeutic_area TEXT NOT NULL
+        )
+        ''')
         
         conn.commit()
-    except psycopg2.Error as e:
-        print(e)
-
+    
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
 
         cursor.execute('''
             CREATE TABLE IF NOT EXISTS retrosynthesis_results (
@@ -697,6 +682,9 @@ def validate_smiles(smiles):
         raise ValueError(f"Invalid SMILES string: {smiles}")
     return True
 
+def initialize_ui(root, db_path):
+    from chempath_ui import ChemPathUI
+    return ChemPathUI(root, db_path)
 
 def comprehensive_analysis(api, smiles):
     print(f"\nPerforming comprehensive analysis for compound: {smiles}")
@@ -789,7 +777,7 @@ def main():
             create_indexes(conn)
             
             root = tk.Tk()
-            app = ChemPathUI(root, db_path)
+            app = ChemPathUI(master=root, db_path=db_path)
             root.mainloop()
         else:
             print("Error! Cannot create the database connection.")
@@ -804,11 +792,4 @@ import logging
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     main()
-
-
-
-
-
-
-
 

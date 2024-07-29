@@ -6,19 +6,19 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 from chempath_api import ChemPathAPI
 import logging
-import tkinter as tk
 from chempath_core import optimize_structure, predict_properties, retrosynthesize
 from chempath_api import ChemPathAPI
-from chempath_database import create_connection, create_tables, create_indexes, insert_compound
 from chempath_api import ChemPathAPI
+from chempath_core import create_connection, create_tables, create_indexes, insert_compound
 
 class ChemPathUI:
-    def __init__(self, root, db_path):
-        self.root = root
+    def __init__(self, master, db_path):
+        self.master = master
         self.db_path = db_path
         self.api = ChemPathAPI(db_path)
         
         self.setup_ui()
+
 
     def setup_ui(self):
         self.notebook = ttk.Notebook(self.master)
@@ -67,7 +67,7 @@ class ChemPathUI:
         ttk.Label(self.retrosynthesis_frame, text="Enter SMILES for Retrosynthesis:").pack(pady=10)
         self.retro_entry = ttk.Entry(self.retrosynthesis_frame, width=50)
         self.retro_entry.pack(pady=5)
-        ttk.Button(self.retrosynthesis_frame, text="Analyze", command=self.perform_retrosynthesis).pack(pady=5)
+        ttk.Button(self.retrosynthesis_frame, text="Analyze", command=lambda: self.perform_retrosynthesis(self.retro_entry.get())).pack(pady=5)
 
         self.retro_result = tk.Text(self.retrosynthesis_frame, height=10, width=50)
         self.retro_result.pack(pady=10)
@@ -75,11 +75,12 @@ class ChemPathUI:
         self.retro_canvas = tk.Canvas(self.retrosynthesis_frame, width=600, height=400)
         self.retro_canvas.pack(pady=10)
 
+
     
     def perform_search(self):
         print("Performing search...")
         query = self.search_entry.get()
-        results = self.api.search_compounds(query)
+        results, total_count = self.api.search_compounds(query)
         self.search_results.delete(*self.search_results.get_children())
         for result in results:
             display_values = result[:4]  # Ensure we're using the first 4 elements
@@ -87,6 +88,8 @@ class ChemPathUI:
             self.search_results.insert("", "end", values=display_values)
             print(f"Inserted values: {display_values}")
         print(f"Total results inserted: {len(results)}")
+        self.update_status(f"Found {total_count} results")
+
 
 
 
@@ -107,12 +110,18 @@ class ChemPathUI:
         self.optimization_result.insert(tk.END, f"Optimized SMILES: {optimized_smiles}")
         self.draw_structure(smiles, optimized_smiles)
 
-    def perform_retrosynthesis(self):
-        smiles = self.retro_entry.get()
+    def perform_retrosynthesis(self, smiles):
         retro_steps = self.api.perform_retrosynthesis(smiles)
         self.retro_result.delete(1.0, tk.END)
-        self.retro_result.insert(tk.END, "Retrosynthesis Steps:\n" + "\n".join(retro_steps))
+        if retro_steps and 'steps' in retro_steps:
+            steps_text = "\n".join([f"{step['reaction_name']}: {' + '.join(step['products'])}" for step in retro_steps['steps']])
+            self.retro_result.insert(tk.END, f"Retrosynthesis Steps:\n{steps_text}")
+        else:
+            self.retro_result.insert(tk.END, "No retrosynthesis steps found.")
         self.draw_retrosynthesis(smiles, retro_steps)
+
+
+
 
     def draw_structure(self, original_smiles, optimized_smiles):
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
@@ -137,25 +146,26 @@ class ChemPathUI:
 
     def draw_retrosynthesis(self, target_smiles, retro_steps):
         fig, ax = plt.subplots(figsize=(10, 6))
-        
+    
         mol = Chem.MolFromSmiles(target_smiles)
         img = Draw.MolToImage(mol)
-        
+    
         ax.imshow(img)
         ax.axis('off')
         ax.set_title("Target Molecule")
-        
-        for i, step in enumerate(retro_steps):
-            ax.text(0.1, 0.9 - i*0.1, f"Step {i+1}: {step}", transform=ax.transAxes)
-        
+    
+        if retro_steps and 'steps' in retro_steps:
+            for i, step in enumerate(retro_steps['steps']):
+                ax.text(0.1, 0.9 - i*0.1, f"Step {i+1}: {step['reaction_name']}", transform=ax.transAxes)
+    
         canvas = FigureCanvasTkAgg(fig, master=self.retro_canvas)
         canvas.draw()
         canvas.get_tk_widget().pack(side=tk.TOP, fill=tk.BOTH, expand=1)
 
+
 def main():
     root = tk.Tk()
-    app = ChemPathUI(root)
+    db_path = "chempath_database.db"  # or use a configuration file to set this
+    app = ChemPathUI(root, db_path)
     root.mainloop()
 
-if __name__ == "__main__":
-    main()
