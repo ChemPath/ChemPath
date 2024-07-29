@@ -133,7 +133,7 @@ def create_tables(conn):
             molecular_weight REAL,
             logp REAL,
             plant_source TEXT,
-            biological_activity TEXT,
+            biological_activities TEXT,
             traditional_use TEXT,
             h_bond_donors INTEGER,
             h_bond_acceptors INTEGER,
@@ -183,6 +183,18 @@ def create_tables(conn):
     print("All tables created successfully")
 
     conn.rollback()
+
+def alter_table(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+        ALTER TABLE plant_compounds
+        ADD COLUMN biological_activities TEXT
+        ''')
+        conn.commit()
+        print("Table 'plant_compounds' altered successfully")
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
 
 
 def create_indexes(conn):
@@ -765,7 +777,7 @@ def validate_compound_data(name, smiles, molecular_weight, logp, plant_source, b
 
 import tkinter as tk
 from chempath_ui import ChemPathUI
-from chempath_core import create_connection, create_tables, create_indexes
+from chempath_core import create_connection, create_tables, create_indexes, alter_table
 
 def main():
     db_path = "chempath_database.db"
@@ -774,6 +786,7 @@ def main():
         conn = create_connection(db_path)
         if conn is not None:
             create_tables(conn)
+            alter_table(conn)
             create_indexes(conn)
             
             root = tk.Tk()
@@ -792,4 +805,3 @@ import logging
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     main()
-

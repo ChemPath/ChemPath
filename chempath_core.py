@@ -23,6 +23,20 @@ def create_connection(db_file):
         print(e)
     return conn
 
+def alter_table(conn):
+    try:
+        cursor = conn.cursor()
+        cursor.execute('''
+        ALTER TABLE plant_compounds
+        ADD COLUMN biological_activities TEXT
+        ''')
+        conn.commit()
+        print("Table 'plant_compounds' altered successfully")
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
+
+
+
 def search_compounds(conn, query):
     cursor = conn.cursor()
     cursor.execute("""
