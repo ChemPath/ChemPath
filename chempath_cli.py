@@ -1,4 +1,4 @@
-from chempath_api import ChemPathAP
+from chempath_api import ChemPathAPI
 from database_operations import get_compound_by_smiles, get_retrosynthesis_data, store_retrosynthesis_informed_optimization
 from chempath_core import retrosynthesis_informed_optimization
 from manual_scoring import calculate_manual_score

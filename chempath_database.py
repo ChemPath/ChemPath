@@ -1,4 +1,4 @@
-import request
+import requests
 from rdkit import Chem
 from chempath_core import (
     setup_logging, fetch_random_compound_name, fetch_pubchem_data,
