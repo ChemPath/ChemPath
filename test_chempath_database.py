@@ -1,7 +1,7 @@
 # test_chempath_database.py
 import unittest
 import sqlite3
-from chempath_database import create_connection, insert_compound, insert_compound_class, insert_therapeutic_area, validate_compound_data
+from src.database.chempath_database import create_connection, insert_compound, insert_compound_class, insert_therapeutic_area, validate_compound_data
 
 class TestChempathDatabase(unittest.TestCase):
     def setUp(self):
@@ -70,7 +70,7 @@ class TestChempathDatabase(unittest.TestCase):
             validate_compound_data("Test", "C1=CC=CC=C1", -100.0, 1.5, "Plant", "Activity", "Use")
     import unittest
 import sqlite3
-from chempath_database import create_connection, create_table, insert_compound
+from src.database.chempath_database import create_connection, create_table, insert_compound
 
 class TestChempathDatabase(unittest.TestCase):
     def setUp(self):

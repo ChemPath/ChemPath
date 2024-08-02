@@ -1,7 +1,7 @@
 # File: chempath_table_recreation.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def recreate_table(conn):
     """Drop existing table and create a new one with correct structure"""

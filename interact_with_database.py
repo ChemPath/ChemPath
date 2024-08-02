@@ -1,4 +1,4 @@
-from chempath_database import create_connection, create_table, insert_compound
+from src.database.chempath_database import create_connection, create_table, insert_compound
 
 # Create a connection to the database
 conn = create_connection("chempath_database.db")

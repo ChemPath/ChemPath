@@ -1,7 +1,7 @@
 # File: chempath_data_reorganization.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def reorganize_data(conn):
     """Reorganize misplaced data in the database"""

@@ -1,7 +1,7 @@
 # File: chempath_database_inspection_and_correction.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def inspect_database(conn):
     """Inspect the current structure and content of the database"""

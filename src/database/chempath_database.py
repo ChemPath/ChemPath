@@ -1,6 +1,6 @@
 import requests
 from rdkit import Chem
-from chempath_core import (
+from src.core.chempath_core import (
     setup_logging, fetch_random_compound_name, fetch_pubchem_data,
     insert_compound, create_tables, create_indexes, search_compounds,
     get_therapeutic_areas, optimize_structure, chemical_space_exploration
@@ -14,10 +14,10 @@ from database_operations import create_connection, get_compound_by_smiles, store
 from database_operations import create_connection, get_compound_by_smiles
 from optimization import optimize_compound
 from retrosynthesis import retrosynthetic_analysis
-from chempath_core import create_tables, create_indexes
+from src.core.chempath_core import create_tables, create_indexes
 import tkinter as tk
 from chempath_utils import validate_smiles
-from chempath_core import create_connection, create_tables, create_indexes
+from src.core.chempath_core import create_connection, create_tables, create_indexes
 
 print("Script started")
 
@@ -31,7 +31,7 @@ def validate_smarts(smarts):
     return pattern is not None
 from rdkit.Chem import Descriptors
 from chempath_api import ChemPathAPI
-from chempath_core import fetch_pubchem_data
+from src.core.chempath_core import fetch_pubchem_data
 __all__ = ['create_connection', 'search_compounds', 'insert_compound', 'get_therapeutic_areas', 'predict_therapeutic_areas']
 import random
 from predict_therapeutic_areas import predict_therapeutic_areas
@@ -44,7 +44,7 @@ from rdkit import Chem
 from rdkit.Chem import Descriptors
 import pandas as pd
 import tkinter as tk
-from chempath_core import create_connection, create_tables, create_indexes
+from src.core.chempath_core import create_connection, create_tables, create_indexes
 
 
 def get_all_compounds(conn):
@@ -123,8 +123,8 @@ def create_connection(db_file):
     return None
 
 def create_tables(conn):
+    cursor = conn.cursor()
     try:
-        cursor = conn.cursor()
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS plant_compounds (
             id INTEGER PRIMARY KEY,
@@ -133,7 +133,7 @@ def create_tables(conn):
             molecular_weight REAL,
             logp REAL,
             plant_source TEXT,
-            biological_activities TEXT,
+            biological_activity TEXT,
             traditional_use TEXT,
             h_bond_donors INTEGER,
             h_bond_acceptors INTEGER,
@@ -141,7 +141,8 @@ def create_tables(conn):
             rotatable_bonds INTEGER
         )
         ''')
-        
+        conn.commit()
+
         cursor.execute('''
         CREATE TABLE IF NOT EXISTS predicted_therapeutic_areas (
             id INTEGER PRIMARY KEY,
@@ -149,22 +150,21 @@ def create_tables(conn):
             therapeutic_area TEXT NOT NULL
         )
         ''')
-        
         conn.commit()
-    
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")
 
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS retrosynthesis_results (
-                id INTEGER PRIMARY KEY,
-                compound_id INTEGER,
-                retrosynthesis_data TEXT,
-                FOREIGN KEY (compound_id) REFERENCES plant_compounds (id)
-            )
+        CREATE TABLE IF NOT EXISTS retrosynthesis_results (
+            id INTEGER PRIMARY KEY,
+            compound_id INTEGER,
+            retrosynthesis_data TEXT,
+            FOREIGN KEY (compound_id) REFERENCES plant_compounds (id)
+        )
         ''')
         print("Table 'retrosynthesis_results' created successfully")
+        conn.commit()
 
+    except sqlite3.Error as e:
+        print(f"An error occurred: {e}")
     except sqlite3.Error as e:
         print(f"Error creating table: {e}")
 
@@ -446,7 +446,7 @@ def create_table(conn):
 
 
 from pathlib import Path
-from chempath_core import create_connection, create_tables, create_indexes
+from src.core.chempath_core import create_connection, create_tables, create_indexes
 from chempath_api import ChemPathAPI
 
 def display_compounds(compounds):
@@ -475,7 +475,7 @@ def display_compounds(compounds):
 import sqlite3
 import csv
 from pathlib import Path
-from chempath_core import create_connection, create_tables, create_indexes, setup_logging
+from src.core.chempath_core import create_connection, create_tables, create_indexes, setup_logging
 from chempath_api import ChemPathAPI
 from rdkit import Chem
 
@@ -486,6 +486,16 @@ def validate_smiles(smiles):
 def validate_smarts(smarts):
     pattern = Chem.MolFromSmarts(smarts)
     return pattern is not None
+
+class PlantCompound:
+    def __init__(self, name, smiles, molecular_weight, logp, plant_source, biological_activity, traditional_use):
+        self.name = name
+        self.smiles = smiles
+        self.molecular_weight = molecular_weight
+        self.logp = logp
+        self.plant_source = plant_source
+        self.biological_activity = biological_activity
+        self.traditional_use = traditional_use
 
 
 print("Defining main function")
@@ -695,7 +705,7 @@ def validate_smiles(smiles):
     return True
 
 def initialize_ui(root, db_path):
-    from chempath_ui import ChemPathUI
+    from src.ui.chempath_ui import ChemPathUI
     return ChemPathUI(root, db_path)
 
 def comprehensive_analysis(api, smiles):
@@ -776,8 +786,8 @@ def validate_compound_data(name, smiles, molecular_weight, logp, plant_source, b
 
 
 import tkinter as tk
-from chempath_ui import ChemPathUI
-from chempath_core import create_connection, create_tables, create_indexes, alter_table
+from src.ui.chempath_ui import ChemPathUI
+from src.core.chempath_core import create_connection, create_tables, create_indexes, alter_table
 
 def main():
     db_path = "chempath_database.db"

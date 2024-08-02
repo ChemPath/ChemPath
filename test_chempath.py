@@ -1,7 +1,7 @@
 import unittest
 import os
 from chempath_api import ChemPathAPI
-from chempath_database import populate_sample_data
+from src.database.chempath_database import populate_sample_data
 
 
 class TestChemPathAPI(unittest.TestCase):

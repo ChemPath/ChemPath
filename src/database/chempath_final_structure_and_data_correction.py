@@ -1,7 +1,7 @@
 # File: chempath_final_structure_and_data_correction.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def correct_database_structure(conn):
     """Correct the database structure"""

@@ -5,8 +5,6 @@ venv/
 *.pyc
 __pycache__/
 
-# Ignore CSV files
-*.csv
 
-# Ignore database files
-*.db
+
+

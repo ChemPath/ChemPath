@@ -1,4 +1,4 @@
-from chempath_database import create_connection, get_all_compounds
+from src.database.chempath_database import create_connection, get_all_compounds
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -6,7 +6,7 @@ from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 import matplotlib.pyplot as plt
 import networkx as nx
-from chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
+from src.database.chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
 
 def load_compound_data():
     database = Path("chempath_database.db")

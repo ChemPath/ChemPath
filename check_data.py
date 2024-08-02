@@ -1,6 +1,6 @@
 # File: check_data.py
 
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def get_compound_classes(cursor, compound_id):
     cursor.execute("""

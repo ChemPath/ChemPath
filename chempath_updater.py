@@ -3,7 +3,7 @@
 import schedule
 import time
 from chempath_advanced_scraper import scrape_compound
-from chempath_database import create_connection, get_all_compounds, update_compound, insert_compound
+from src.database.chempath_database import create_connection, get_all_compounds, update_compound, insert_compound
 
 def validate_compound(compound):
     """Perform basic validation checks on compound data"""

@@ -6,7 +6,7 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 from sklearn.metrics import f1_score
 import joblib
-from chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
+from src.database.chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
 
 def train_model():
     conn = create_connection('chempath_database.db')

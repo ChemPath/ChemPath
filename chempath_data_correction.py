@@ -1,7 +1,7 @@
 # File: chempath_data_correction.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def get_table_info(conn):
     """Get information about the structure of the plant_compounds table"""

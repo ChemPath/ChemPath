@@ -2,7 +2,7 @@ import sqlite3
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors
-from chempath_core import optimize_structure, chemical_space_exploration, get_retrosynthesis_data, retrosynthesis_informed_optimization, store_retrosynthesis_informed_optimization
+from src.core.chempath_core import optimize_structure, chemical_space_exploration, get_retrosynthesis_data, retrosynthesis_informed_optimization, store_retrosynthesis_informed_optimization
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
@@ -38,6 +38,18 @@ class PlantCompound(Base):
     polar_surface_area = Column(Float)
     rotatable_bonds = Column(Integer)
 
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'smiles': self.smiles,
+            'molecular_weight': self.molecular_weight,
+            'logp': self.logp,
+            'plant_source': self.plant_source,
+            'biological_activity': self.biological_activity,
+            'traditional_use': self.traditional_use
+        }
 
 class PredictedTherapeuticArea(Base):
     __tablename__ = 'predicted_therapeutic_areas'

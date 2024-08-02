@@ -1,7 +1,7 @@
 # File: chempath_ultimate_correction.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def ultimate_data_correction(conn):
     """Make final corrections to the database"""

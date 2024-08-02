@@ -1,7 +1,7 @@
 import requests
 import requests
 from bs4 import BeautifulSoup
-from chempath_database import create_connection, insert_compound
+from src.database.chempath_database import create_connection, insert_compound
 import logging
 
 logging.basicConfig(level=logging.INFO)

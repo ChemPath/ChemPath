@@ -6,10 +6,10 @@ from rdkit import Chem
 from rdkit.Chem import Draw
 from chempath_api import ChemPathAPI
 import logging
-from chempath_core import optimize_structure, predict_properties, retrosynthesize
+from src.core.chempath_core import optimize_structure, predict_properties, retrosynthesize
 from chempath_api import ChemPathAPI
 from chempath_api import ChemPathAPI
-from chempath_core import create_connection, create_tables, create_indexes, insert_compound
+from src.core.chempath_core import create_connection, create_tables, create_indexes, insert_compound
 
 class ChemPathUI:
     def __init__(self, master, db_path):

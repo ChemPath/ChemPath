@@ -1,7 +1,7 @@
 # File: chempath_database_cleanup.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def remove_duplicates(conn):
     """Remove duplicate entries, keeping the most complete one"""

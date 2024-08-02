@@ -3,8 +3,8 @@
 import requests
 from bs4 import BeautifulSoup
 import re
-from chempath_database import create_connection
-from chempath_database_cleanup import update_or_insert_compound
+from src.database.chempath_database import create_connection
+from src.database.chempath_database_cleanup import update_or_insert_compound
 
 def safe_find(soup, class_name, string):
     """Safely find an element, returning None if not found"""

@@ -24,9 +24,9 @@ def predict_areas():
     
 
 from flask import request, jsonify
-from chempath_database import get_compound, add_compound, add_predicted_areas
+from src.database.chempath_database import get_compound, add_compound, add_predicted_areas
 from predict_therapeutic_areas import predict_therapeutic_areas
-from chempath_core import fetch_all_therapeutic_areas
+from src.core.chempath_core import fetch_all_therapeutic_areas
 
 def predict_areas():
     data = request.json

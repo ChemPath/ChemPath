@@ -1,7 +1,7 @@
 # File: chempath_final_data_swap.py
 
 import sqlite3
-from chempath_database import create_connection
+from src.database.chempath_database import create_connection
 
 def swap_and_correct_data(conn):
     """Swap 'Biological Activities' and 'Traditional Use' data, and correct 'Therapeutic Areas'"""
