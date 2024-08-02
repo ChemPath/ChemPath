@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite
 import json
 
 def create_connection(db_file):

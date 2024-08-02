@@ -1,4 +1,4 @@
-import sqlite3
+import sqlite
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors

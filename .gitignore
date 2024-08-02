@@ -4,3 +4,9 @@ venv/
 # Ignore other files or directories as needed
 *.pyc
 __pycache__/
+
+# Ignore CSV files
+*.csv
+
+# Ignore database files
+*.db
