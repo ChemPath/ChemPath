@@ -1,12 +1,24 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 import rdkit
 from rdkit import Chem
-from rdkit.Chem import AllChem
-from rdkit.Chem import Descriptors
-from rdkit.Chem import Crippen
+from rdkit.Chem import AllChem, Descriptors, Crippen
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestRegressor
+import json
+from .molecular_descriptors import calculate_molecular_descriptors
 
+# Step 1: Load bioisosteric groups from a JSON file
+
+def load_bioisosteric_groups():
+    current_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    file_path = os.path.join(current_dir, 'data', 'bioisosteric_groups.json')
+    with open(file_path, 'r') as f:
+        return json.load(f)
+
+bioisosteric_groups = load_bioisosteric_groups()
 # Step 2: Develop a database of bioisosteric functional groups
 bioisosteric_groups = {
     '[CX3](=O)[OX1H1]': ['[SX4](=O)(=O)[OX1H1]', '[PX4](=O)([OX1H1])[OX1H1]', '[CX3](=O)[NX3H1][OX1H1]', '[#6]1[#7][#7][#7][#7]1'],
@@ -26,7 +38,7 @@ def identify_functional_groups(mol):
     return functional_groups
 
 # Step 4: Implement a function to replace functional groups
-def replace_functional_group(mol, original_group, new_group):
+def replace_functional_group(mol, original_group, new_group, max_replacements=3):
     original_pattern = Chem.MolFromSmarts(original_group)
     new_pattern = Chem.MolFromSmarts(new_group)
     
@@ -39,10 +51,24 @@ def replace_functional_group(mol, original_group, new_group):
     if not matches:
         return None
     
-    # Replace the first occurrence of the original group with the new group
-    new_mol = AllChem.ReplaceSubstructs(mol, original_pattern, new_pattern, replaceAll=False)[0]
+    # Replace up to max_replacements occurrences of the original group with the new group
+    new_mol = AllChem.ReplaceSubstructs(mol, original_pattern, new_pattern, replaceAll=False, 
+                                        replacementConnectionPoint=0, useChirality=False)
     
-    return new_mol
+    return new_mol[0] if new_mol else None
+
+
+def score_replacement(original_mol, new_mol):
+    original_descriptors = calculate_molecular_descriptors(original_mol)
+    new_descriptors = calculate_molecular_descriptors(new_mol)
+    
+    # Calculate a simple score based on the changes in key properties
+    score = 0
+    score += abs(new_descriptors['LogP'] - original_descriptors['LogP']) * 0.5
+    score += abs(new_descriptors['MolWt'] - original_descriptors['MolWt']) * 0.01
+    score += abs(new_descriptors['TPSA'] - original_descriptors['TPSA']) * 0.02
+    
+    return score
 
 # Step 5: Create a function to generate analogs using functional group substitution
 def generate_analogs(smiles):
@@ -56,20 +82,33 @@ def generate_analogs(smiles):
             new_mol = replace_functional_group(mol, fg, replacement)
             if new_mol:
                 new_smiles = Chem.MolToSmiles(new_mol)
-                analogs.append(new_smiles)
+                score = score_replacement(mol, new_mol)
+                analogs.append((new_smiles, score))
     
-    return analogs
+    # Sort analogs by score in descending order
+    analogs.sort(key=lambda x: x[1], reverse=True)
+    
+    return [analog[0] for analog in analogs]
 
 # Step 6: Implement a simple machine learning model to predict activity
-def calculate_molecular_descriptors(smiles):
-    mol = Chem.MolFromSmiles(smiles)
+from rdkit.Chem import AllChem
+
+def calculate_molecular_descriptors(mol):
+    if isinstance(mol, str):
+        mol = Chem.MolFromSmiles(mol)
+    
+    Chem.SanitizeMol(mol)  # Sanitize the molecule in place
+    
     return {
         'MolWt': Descriptors.ExactMolWt(mol),
         'LogP': Crippen.MolLogP(mol),
         'NumHDonors': Descriptors.NumHDonors(mol),
         'NumHAcceptors': Descriptors.NumHAcceptors(mol),
-        'NumRotatableBonds': Descriptors.NumRotatableBonds(mol)
+        'NumRotatableBonds': Descriptors.NumRotatableBonds(mol),
+        'TPSA': Descriptors.TPSA(mol),
+        'NumAromaticRings': Descriptors.NumAromaticRings(mol)
     }
+
 
 def train_activity_model(training_data):
     X = pd.DataFrame([calculate_molecular_descriptors(smiles) for smiles in training_data['SMILES']])
