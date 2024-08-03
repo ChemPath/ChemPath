@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Float, Table, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
+
 
 Base = declarative_base()
 
@@ -8,6 +10,11 @@ compound_therapeutic_area = Table('compound_therapeutic_area', Base.metadata,
     Column('compound_id', Integer, ForeignKey('compounds.id')),
     Column('therapeutic_area_id', Integer, ForeignKey('therapeutic_areas.id'))
 )
+
+class Molecule(Base):
+    __tablename__ = 'molecules'
+    id = Column(Integer, primary_key=True)
+    smiles = Column(String, unique=True, nullable=False)
 
 class Compound(Base):
     __tablename__ = 'compounds'

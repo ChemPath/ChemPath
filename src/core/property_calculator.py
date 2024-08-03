@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from models import Molecule
 
 def calculate_properties(molecule_id: int, session: Session):
-    molecule = session.query(Molecule).get(molecule_id)
+    molecule = session.get(Molecule, molecule_id)
     mol = Chem.MolFromSmiles(molecule.smiles)
     properties = {
         'molecular_weight': Descriptors.MolWt(mol),
