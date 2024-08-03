@@ -1,0 +1,12 @@
+{
+    "benzene": "c1ccccc1",
+    "pyridine": "c1ccncc1",
+    "piperidine": "C1CCNCC1",
+    "cyclohexane": "C1CCCCC1",
+    "furan": "c1ccoc1",
+    "thiophene": "c1ccsc1",
+    "imidazole": "c1cnc[nH]1",
+    "oxazole": "c1cocn1",
+    "pyrazole": "c1cn[nH]c1",
+    "morpholine": "C1COCCN1"
+}
