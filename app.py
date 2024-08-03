@@ -7,7 +7,7 @@ from retrosynthesis import perform_retrosynthesis, get_retrosynthesis_result
 from advanced_retrosynthesis import advanced_retrosynthetic_analysis, get_advanced_retrosynthesis_result
 from ai_optimization import optimize_compounds, get_optimization_results
 from reagent_availability import analyze_reagent_availability
-from scheduler import start_scheduler
+from utils.scheduler import start_scheduler
 
 app = Flask(__name__)
 
