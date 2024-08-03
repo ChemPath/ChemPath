@@ -1,0 +1,23 @@
+{
+    "alternative_rings": [
+        {
+            "name": "Tungsten Ring",
+            "material": "Tungsten",
+            "durability": 9,
+            "price_range": "$50-$200"
+        },
+        {
+            "name": "Silicone Ring",
+            "material": "Silicone",
+            "durability": 7,
+            "price_range": "$20-$50"
+        },
+        {
+            "name": "Titanium Ring",
+            "material": "Titanium",
+            "durability": 8,
+            "price_range": "$100-$300"
+        }
+    ]
+}
+

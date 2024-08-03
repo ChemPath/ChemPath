@@ -35,9 +35,6 @@ alternative_rings = {
 # Step 3: Implement a function to replace ring systems
 
 def replace_ring_system(mol, original_ring, new_ring):
-    """
-    Replace a ring system in a molecule with a new one.
-    """
     original_pattern = Chem.MolFromSmiles(original_ring)
     new_pattern = Chem.MolFromSmiles(new_ring)
     
@@ -47,14 +44,25 @@ def replace_ring_system(mol, original_ring, new_ring):
     # Replace the ring system
     new_mol = AllChem.ReplaceSubstructs(mol, original_pattern, new_pattern, replaceAll=False)[0]
     
+    # Check for maintaining overall molecular topology
+    if new_mol.GetNumAtoms() != mol.GetNumAtoms():
+        return None
+    
     return new_mol
+
+def check_chemical_validity(mol):
+    try:
+        Chem.SanitizeMol(mol)
+        Descriptors.ExactMolWt(mol)
+        Crippen.MolLogP(mol)
+        return True
+    except:
+        return False
+
 
 # Step 4: Generate analogs using ring system alterations
 
 def generate_ring_analogs(smiles):
-    """
-    Generate analogs by altering ring systems in the molecule.
-    """
     mol = Chem.MolFromSmiles(smiles)
     analogs = []
     
@@ -64,11 +72,12 @@ def generate_ring_analogs(smiles):
         if ring in alternative_rings:
             for new_ring in alternative_rings[ring]:
                 new_mol = replace_ring_system(mol, ring, new_ring)
-                if new_mol:
+                if new_mol and check_chemical_validity(new_mol):
                     new_smiles = Chem.MolToSmiles(new_mol)
                     analogs.append(new_smiles)
     
     return analogs
+
 
 # Step 5: Implement a simple machine learning model to predict activity
 # (This is the same as in the functional_group_substitution.py file)

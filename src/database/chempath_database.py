@@ -14,7 +14,21 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import types
 from marshmallow import Schema, fields, ValidationError
 from flask import Flask, request, jsonify
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from models import Base
 
+# Create the engine
+engine = create_engine('sqlite:///chempath.db')  # Adjust the database URL as needed
+
+# Make sure to export the engine
+__all__ = ['engine']
+
+def create_tables():
+    Base.metadata.create_all(engine)
+    print("Database tables created successfully.")
+
+Session = sessionmaker(bind=engine)
 Base = declarative_base()
 app = Flask(__name__)
 
