@@ -1,11 +1,12 @@
-# File: chempath_ml_models.py
-
 import tensorflow as tf
 from rdkit import Chem
 from rdkit.Chem import AllChem
 import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
+import pandas as pd
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
 
 def smiles_to_fingerprint(smiles, size=2048):
     mol = Chem.MolFromSmiles(smiles)
@@ -76,19 +77,16 @@ def predict_reaction(model, scaler, smiles):
     scaled_fingerprint = scaler.transform([fingerprint])
     prediction = model.predict(scaled_fingerprint)[0]
     return prediction
+
 def prepare_data(conn):
-    try:
-        query = "SELECT * FROM plant_compounds"
-        df = pd.read_sql_query(query, conn)
-        print(f"Retrieved {len(df)} rows from plant_compounds")
-        
-        features = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']]
-        target = df['biological_activity']
-        
-        return features, target
-    except pd.io.sql.DatabaseError as e:
-        print(f"Error reading from database: {e}")
-        return None, None
+    query = "SELECT * FROM plant_compounds"
+    df = pd.read_sql_query(query, conn)
+    print(f"Retrieved {len(df)} rows from plant_compounds")
+    
+    features = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']]
+    target = df['biological_activity']
+    
+    return features, target
 
 def train_model(conn):
     features, target = prepare_data(conn)
@@ -110,3 +108,4 @@ def train_model(conn):
     print(f"Model accuracy: {accuracy:.2f}")
     
     return model, scaler
+

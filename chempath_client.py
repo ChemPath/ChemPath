@@ -1,31 +1,36 @@
 import requests
 import concurrent.futures
 import random
+import asyncio
+import aiohttp
 
-def send_request(url, data):
+async def send_request(session, url, data):
     try:
-        response = requests.post(url, json=data)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.RequestException as e:
+        async with session.post(url, json=data) as response:
+            response.raise_for_status()
+            return await response.json()
+    except aiohttp.ClientError as e:
         print(f"Error: {e}")
-        print(f"Response content: {response.text}")
         return None
 
-def simulate_user(user_id):
+async def simulate_user(session, user_id):
     url = "http://localhost:5000/api/process_request"
     data = {
         "request_type": "search",
         "query": f"compound_{random.randint(1, 100)}"
     }
-    result = send_request(url, data)
+    result = await send_request(session, url, data)
     return f"User {user_id}: {result}"
 
-def simulate_users(num_users):
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(simulate_user, i) for i in range(num_users)]
-        for future in concurrent.futures.as_completed(futures):
-            print(future.result())
+async def simulate_users(num_users):
+    async with aiohttp.ClientSession() as session:
+        tasks = [simulate_user(session, i) for i in range(num_users)]
+        results = await asyncio.gather(*tasks)
+        for result in results:
+            print(result)
+
+async def main():
+    await simulate_users(100)
 
 if __name__ == "__main__":
-    simulate_users(100)
+    asyncio.run(main())

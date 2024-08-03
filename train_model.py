@@ -6,52 +6,72 @@ from sklearn.multioutput import MultiOutputClassifier
 from sklearn.preprocessing import StandardScaler, MultiLabelBinarizer
 from sklearn.metrics import f1_score
 import joblib
-from src.database.chempath_database import create_connection, get_all_compounds, get_therapeutic_areas
+from sqlalchemy.orm import Session
+from database import engine
+from models import Compound, TherapeuticArea, MLModelPerformance
 
 def train_model():
-    conn = create_connection('chempath_database.db')
-    compounds = get_all_compounds(conn)
-    all_areas = get_therapeutic_areas(conn)
+    with Session(engine) as session:
+        compounds = session.query(Compound).all()
+        all_areas = [area.name for area in session.query(TherapeuticArea).all()]
 
-    df = pd.DataFrame(compounds, columns=['id', 'name', 'smiles', 'molecular_weight', 'logp', 'plant_source', 'biological_activity', 'traditional_use', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds'])
+        data = []
+        for compound in compounds:
+            row = {
+                'smiles': compound.smiles,
+                'molecular_weight': compound.molecular_weight,
+                'logp': compound.logp,
+                'h_bond_donors': compound.h_bond_donors,
+                'h_bond_acceptors': compound.h_bond_acceptors,
+                'ph': compound.ph,
+                'temperature': compound.temperature,
+                'therapeutic_areas': [area.name for area in compound.therapeutic_areas]
+            }
+            data.append(row)
 
-    # Enhanced feature engineering
-    X = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'polar_surface_area', 'rotatable_bonds']]
-    X['mw_logp_ratio'] = X['molecular_weight'] / (X['logp'] + 1)  # Adding a new feature
-    
-    mlb = MultiLabelBinarizer()
-    y = mlb.fit_transform(df['biological_activity'].apply(lambda x: x.split(',')))
+        df = pd.DataFrame(data)
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        X = df[['molecular_weight', 'logp', 'h_bond_donors', 'h_bond_acceptors', 'ph', 'temperature']]
+        X['mw_logp_ratio'] = X['molecular_weight'] / (X['logp'] + 1)
+        
+        mlb = MultiLabelBinarizer()
+        y = mlb.fit_transform(df['therapeutic_areas'])
 
-    scaler = StandardScaler()
-    X_train_scaled = scaler.fit_transform(X_train)
-    X_test_scaled = scaler.transform(X_test)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Fine-tuned Random Forest Classifier
-    rf = RandomForestClassifier(n_estimators=200, max_depth=10, min_samples_split=5, random_state=42)
-    model = MultiOutputClassifier(rf)
+        scaler = StandardScaler()
+        X_train_scaled = scaler.fit_transform(X_train)
+        X_test_scaled = scaler.transform(X_test)
 
-    # Cross-validation
-    cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=5, scoring='f1_macro')
-    print(f"Cross-validation F1 scores: {cv_scores}")
-    print(f"Mean CV F1 score: {np.mean(cv_scores)}")
+        rf = RandomForestClassifier(n_estimators=200, max_depth=10, min_samples_split=5, random_state=42)
+        model = MultiOutputClassifier(rf)
 
-    model.fit(X_train_scaled, y_train)
+        cv_scores = cross_val_score(model, X_train_scaled, y_train, cv=5, scoring='f1_macro')
+        print(f"Cross-validation F1 scores: {cv_scores}")
+        print(f"Mean CV F1 score: {np.mean(cv_scores)}")
 
-    # Evaluate on test set
-    y_pred = model.predict(X_test_scaled)
-    test_f1 = f1_score(y_test, y_pred, average='macro')
-    print(f"Test set F1 score: {test_f1}")
-    # Feature importance analysis
-    feature_importance = model.estimators_[0].feature_importances_
-    feature_names = X.columns
-    for name, importance in zip(feature_names, feature_importance):
-        print(f"Feature '{name}': {importance}")
+        model.fit(X_train_scaled, y_train)
 
-    joblib.dump(model, 'therapeutic_area_predictor.joblib')
-    joblib.dump(scaler, 'feature_scaler.joblib')
-    joblib.dump(mlb, 'multilabel_binarizer.joblib')
+        y_pred = model.predict(X_test_scaled)
+        test_f1 = f1_score(y_test, y_pred, average='macro')
+        print(f"Test set F1 score: {test_f1}")
+
+        feature_importance = model.estimators_[0].feature_importances_
+        feature_names = X.columns
+        for name, importance in zip(feature_names, feature_importance):
+            print(f"Feature '{name}': {importance}")
+
+        joblib.dump(model, 'therapeutic_area_predictor.joblib')
+        joblib.dump(scaler, 'feature_scaler.joblib')
+        joblib.dump(mlb, 'multilabel_binarizer.joblib')
+
+        performance = MLModelPerformance(
+            model_name="RandomForestClassifier",
+            accuracy=np.mean(cv_scores),
+            f1_score=test_f1
+        )
+        session.add(performance)
+        session.commit()
 
     print("Model trained and saved successfully.")
 

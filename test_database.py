@@ -41,6 +41,24 @@ def create_tables(conn):
     )
     ''')
     
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS retrosynthesis_results (
+        id INTEGER PRIMARY KEY,
+        compound_id INTEGER,
+        steps TEXT,
+        FOREIGN KEY (compound_id) REFERENCES compounds (id)
+    )
+    ''')
+    
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS optimization_results (
+        id INTEGER PRIMARY KEY,
+        compound_id INTEGER,
+        optimization_priority REAL,
+        FOREIGN KEY (compound_id) REFERENCES compounds (id)
+    )
+    ''')
+    
     conn.commit()
 
 def insert_sample_data(conn):
@@ -75,7 +93,7 @@ def insert_sample_data(conn):
     conn.commit()
 
 def main():
-    db_file = Path("test_chempath.db")
+    db_file = Path("test_database.db")
     conn = create_connection(db_file)
     
     if conn is not None:

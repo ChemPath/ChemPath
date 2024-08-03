@@ -1,10 +1,10 @@
-# retrosynthesis.py
-
-from database_operations import store_retrosynthesis_result
+from sqlalchemy.orm import Session
+from models import Compound, RetrosynthesisResult, ReactionStep
+from database import engine
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-# Updated reaction database with explicit SMILES-based reactions
+# Reaction database
 reaction_database = [
     {
         "name": "Aspirin hydrolysis",
@@ -52,7 +52,6 @@ def apply_transformation(mol, reaction):
         reactant_mol = Chem.MolFromSmiles(reaction["reactant"])
         product_mols = [Chem.MolFromSmiles(p) for p in reaction["products"]]
         
-        # Replace the substructure in the original molecule
         rms = AllChem.ReplaceSubstructs(mol, reactant_mol, product_mols[0])
         if len(rms) > 0:
             products = [Chem.MolToSmiles(rms[0])] + reaction["products"][1:]
@@ -68,52 +67,60 @@ def generate_smiles_variants(smiles):
         Chem.MolToSmiles(mol, allHsExplicit=True)
     ]
 
-def retrosynthetic_analysis(smiles, depth=1, indent=""):
+def perform_retrosynthesis(compound_id, smiles, depth=1):
+    with Session(engine) as session:
+        compound = session.query(Compound).get(compound_id)
+        if not compound:
+            return {"error": "Compound not found"}
+
+        retrosynthesis_result = RetrosynthesisResult(compound_id=compound_id)
+        session.add(retrosynthesis_result)
+        session.flush()
+
+        steps = analyze_compound(session, retrosynthesis_result.id, smiles, depth)
+        
+        retrosynthesis_result.steps = steps
+        session.commit()
+
+        return {"result_id": retrosynthesis_result.id, "steps": [step.to_dict() for step in steps]}
+
+def analyze_compound(session, result_id, smiles, depth):
     mol = Chem.MolFromSmiles(smiles)
     if mol is None:
-        print(f"{indent}Invalid SMILES string")
-        return
+        return []
 
-    print(f"{indent}Retrosynthetic analysis for {smiles}:")
-   
-    any_transformation_applied = False
+    steps = []
     for reaction in reaction_database:
         products = apply_transformation(mol, reaction)
         if products:
-            any_transformation_applied = True
-            print(f"{indent}  {reaction['name']}:")
-            for product in products:
-                print(f"{indent}    - {product}")
-                if depth > 1:
+            step = ReactionStep(
+                result_id=result_id,
+                reaction_name=reaction['name'],
+                reactant=smiles,
+                products=",".join(products)
+            )
+            session.add(step)
+            steps.append(step)
+
+            if depth > 1:
+                for product in products:
                     for variant in generate_smiles_variants(product):
-                        retrosynthetic_analysis(variant, depth - 1, indent + "    ")
-   
-    if not any_transformation_applied:
-        print(f"{indent}  No applicable transformations found")
+                        sub_steps = analyze_compound(session, result_id, variant, depth - 1)
+                        steps.extend(sub_steps)
 
-    print(f"{indent}Retrosynthetic analysis complete")
+    return steps
 
-def perform_retrosynthesis(conn, compound_id, smiles, depth=1):
-    retrosynthesis_data = {}
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        retrosynthesis_data['error'] = "Invalid SMILES string"
-    else:
-        retrosynthesis_data['steps'] = []
-        for reaction in reaction_database:
-            products = apply_transformation(mol, reaction)
-            if products:
-                step = {
-                    'reaction_name': reaction['name'],
-                    'products': products
-                }
-                retrosynthesis_data['steps'].append(step)
-                if depth > 1:
-                    for product in products:
-                        for variant in generate_smiles_variants(product):
-                            sub_analysis = perform_retrosynthesis(conn, compound_id, variant, depth - 1)
-                            if 'steps' in sub_analysis:
-                                step['sub_steps'] = sub_analysis['steps']
+def get_retrosynthesis_result(result_id):
+    with Session(engine) as session:
+        result = session.query(RetrosynthesisResult).get(result_id)
+        if result:
+            return {
+                "compound_id": result.compound_id,
+                "steps": [step.to_dict() for step in result.steps]
+            }
+        return {"error": "Result not found"}
 
-    store_retrosynthesis_result(conn, compound_id, retrosynthesis_data)
-    return retrosynthesis_data
+# Example usage
+if __name__ == "__main__":
+    result = perform_retrosynthesis(1, "CC(=O)Oc1ccccc1C(=O)O", depth=2)
+    print(result)

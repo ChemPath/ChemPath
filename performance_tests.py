@@ -1,14 +1,13 @@
-# performance_tests.py
-
 import time
 import csv
 import random
-import concurrent.futures
+import asyncio
+import aiohttp
 from chempath_api import ChemPathAPI
 from chempath_utils import validate_smiles
 import psutil
 
-def generate_large_dataset(num_compounds):
+async def generate_large_dataset(num_compounds):
     compounds = []
     for i in range(num_compounds):
         compound = {
@@ -27,14 +26,14 @@ def generate_large_dataset(num_compounds):
         compounds.append(compound)
     return compounds
 
-def test_high_volume_insert(api, compounds):
+async def test_high_volume_insert(api, compounds):
     start_time = time.time()
-    for compound in compounds:
-        api.insert_compound(compound)
+    tasks = [api.insert_compound(compound) for compound in compounds]
+    await asyncio.gather(*tasks)
     end_time = time.time()
     print(f"Inserted {len(compounds)} compounds in {end_time - start_time:.2f} seconds")
 
-def test_concurrent_searches(api, num_searches):
+async def test_concurrent_searches(api, num_searches):
     queries = ['C', 'O', 'N', 'S', 'P']
     filters = [
         {'molecular_weight': (100, 200)},
@@ -44,22 +43,21 @@ def test_concurrent_searches(api, num_searches):
         {'traditional_use': 'Use_1'}
     ]
 
-    def search_worker():
+    async def search_worker():
         query = random.choice(queries)
         filter_set = random.choice(filters)
-        return api.search_compounds(query=query, filters=filter_set)
+        return await api.search_compounds(query=query, filters=filter_set)
 
     start_time = time.time()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
-        futures = [executor.submit(search_worker) for _ in range(num_searches)]
-        concurrent.futures.wait(futures)
+    tasks = [search_worker() for _ in range(num_searches)]
+    await asyncio.gather(*tasks)
     end_time = time.time()
     print(f"Completed {num_searches} concurrent searches in {end_time - start_time:.2f} seconds")
 
-def test_bulk_predictions(api, compounds):
+async def test_bulk_predictions(api, compounds):
     start_time = time.time()
-    for compound in compounds:
-        api.predict_therapeutic_areas(compound['smiles'])
+    tasks = [api.predict_therapeutic_areas(compound['smiles']) for compound in compounds]
+    await asyncio.gather(*tasks)
     end_time = time.time()
     print(f"Predicted therapeutic areas for {len(compounds)} compounds in {end_time - start_time:.2f} seconds")
 
@@ -71,27 +69,33 @@ def monitor_resources():
     print(f"Memory Usage: {memory_percent}%")
     print(f"Disk I/O - Read: {disk_io.read_bytes / (1024*1024):.2f} MB, Write: {disk_io.write_bytes / (1024*1024):.2f} MB")
 
-def run_performance_tests():
+async def run_performance_tests():
     api = ChemPathAPI('chempath_test.db')
     
-    # Generate test compounds
-    compounds = generate_large_dataset(10000)
+    compounds = await generate_large_dataset(10000)
 
-    # ... rest of the function remains the same
+    print("\nTesting high-volume insert...")
+    await test_high_volume_insert(api, compounds[:3000])
+    monitor_resources()
+
+    print("\nTesting concurrent searches...")
+    await test_concurrent_searches(api, 500)
+    monitor_resources()
+
+    print("\nTesting bulk predictions...")
+    await test_bulk_predictions(api, compounds[3000:4000])
+    monitor_resources()
 
     print("\nTesting combined high-load scenario...")
     start_time = time.time()
-    with concurrent.futures.ThreadPoolExecutor(max_workers=3) as executor:
-        insert_future = executor.submit(test_high_volume_insert, api, compounds[:3000])
-        search_future = executor.submit(test_concurrent_searches, api, 500)
-        predict_future = executor.submit(test_bulk_predictions, api, compounds[3000:4000])
-        concurrent.futures.wait([insert_future, search_future, predict_future])
+    await asyncio.gather(
+        test_high_volume_insert(api, compounds[:3000]),
+        test_concurrent_searches(api, 500),
+        test_bulk_predictions(api, compounds[3000:4000])
+    )
     end_time = time.time()
     print(f"Completed combined high-load scenario in {end_time - start_time:.2f} seconds")
     monitor_resources()
-    
-    # No need to call api.close_connection() here
-
 
 if __name__ == "__main__":
-    run_performance_tests()
+    asyncio.run(run_performance_tests())

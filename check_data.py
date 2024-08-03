@@ -1,50 +1,83 @@
-# File: check_data.py
+import re
+from rdkit import Chem
+from rdkit.Chem import Descriptors
+from database_operations import create_engine_and_session, get_compound, update_compound
+from database_operations import Compound
 
-from src.database.chempath_database import create_connection
+def validate_smiles(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return mol is not None
 
-def get_compound_classes(cursor, compound_id):
-    cursor.execute("""
-        SELECT cc.name 
-        FROM compound_classes cc
-        JOIN compound_class_relationships ccr ON cc.id = ccr.compound_class_id
-        WHERE ccr.compound_id = ?
-    """, (compound_id,))
-    return [row[0] for row in cursor.fetchall()]
+def validate_inchi(inchi):
+    mol = Chem.MolFromInchi(inchi)
+    return mol is not None
 
-def get_therapeutic_areas(cursor, compound_id):
-    cursor.execute("""
-        SELECT ta.name 
-        FROM therapeutic_areas ta
-        JOIN therapeutic_area_relationships tar ON ta.id = tar.therapeutic_area_id
-        WHERE tar.compound_id = ?
-    """, (compound_id,))
-    return [row[0] for row in cursor.fetchall()]
+def validate_molecular_weight(mw):
+    return isinstance(mw, (int, float)) and mw > 0
 
-def check_data():
-    conn = create_connection("chempath_database.db")
-    if conn is not None:
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM plant_compounds")
-        rows = cursor.fetchall()
-        for row in rows:
-            print(f"Name: {row[1]}")
-            print(f"SMILES: {row[2]}")
-            print(f"Molecular Weight: {row[3]}")
-            print(f"LogP: {row[4]}")
-            print(f"Plant Source: {row[5]}")
-            print(f"Biological Activity: {row[6]}")
-            print(f"Traditional Use: {row[7]}")
-            
-            compound_classes = get_compound_classes(cursor, row[0])
-            print(f"Compound Classes: {', '.join(compound_classes)}")
-            
-            therapeutic_areas = get_therapeutic_areas(cursor, row[0])
-            print(f"Therapeutic Areas: {', '.join(therapeutic_areas)}")
-            
-            print("--------------------")
-        conn.close()
+def validate_logp(logp):
+    return isinstance(logp, (int, float))
+
+def validate_pubchem_cid(cid):
+    return isinstance(cid, int) and cid > 0
+
+def validate_name(name):
+    return isinstance(name, str) and len(name) > 0
+
+def calculate_molecular_weight(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return Descriptors.ExactMolWt(mol) if mol else None
+
+def calculate_logp(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return Descriptors.MolLogP(mol) if mol else None
+
+def check_compound_data(compound):
+    errors = []
+    
+    if not validate_name(compound.name):
+        errors.append("Invalid compound name")
+    
+    if not validate_smiles(compound.smiles):
+        errors.append("Invalid SMILES string")
     else:
-        print("Error! Cannot create the database connection.")
+        calculated_mw = calculate_molecular_weight(compound.smiles)
+        if calculated_mw and abs(calculated_mw - compound.molecular_weight) > 0.1:
+            errors.append(f"Molecular weight mismatch: calculated {calculated_mw}, stored {compound.molecular_weight}")
+        
+        calculated_logp = calculate_logp(compound.smiles)
+        if calculated_logp and abs(calculated_logp - compound.logp) > 0.5:
+            errors.append(f"LogP mismatch: calculated {calculated_logp}, stored {compound.logp}")
+    
+    if not validate_molecular_weight(compound.molecular_weight):
+        errors.append("Invalid molecular weight")
+    
+    if not validate_logp(compound.logp):
+        errors.append("Invalid LogP value")
+    
+    if not validate_pubchem_cid(compound.pubchem_cid):
+        errors.append("Invalid PubChem CID")
+    
+    if compound.inchi and not validate_inchi(compound.inchi):
+        errors.append("Invalid InChI string")
+    
+    return errors
+
+def check_database_integrity():
+    engine, session = create_engine_and_session()
+    compounds = session.query(Compound).all()
+    
+    for compound in compounds:
+        errors = check_compound_data(compound)
+        if errors:
+            print(f"Errors found for compound {compound.name} (ID: {compound.id}):")
+            for error in errors:
+                print(f"  - {error}")
+        else:
+            print(f"No errors found for compound {compound.name} (ID: {compound.id})")
+    
+    session.close()
 
 if __name__ == "__main__":
-    check_data()
+    check_database_integrity()
+

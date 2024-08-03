@@ -1,14 +1,20 @@
 import unittest
 from unittest.mock import patch
+from sqlalchemy.orm import Session
+from database import engine
+from models import Compound, TherapeuticArea
 from chempath_api import ChemPathAPI
 
 class TestChemPathIntegration(unittest.TestCase):
 
     def setUp(self):
-        self.api = ChemPathAPI('test_chempath.db')
+        self.api = ChemPathAPI()
 
     def tearDown(self):
-        self.api.close_connection()
+        with Session(engine) as session:
+            session.query(Compound).delete()
+            session.query(TherapeuticArea).delete()
+            session.commit()
 
     @patch('requests.get')
     def test_external_api_call(self, mock_get):
@@ -28,13 +34,10 @@ class TestChemPathIntegration(unittest.TestCase):
             'smiles': 'C1=CC=CC=C1',
             'molecular_weight': 78.11,
             'logp': 2.0,
-            'plant_source': 'Test Plant',
-            'biological_activities': 'Test Activity',
-            'traditional_use': 'Test Use',
             'h_bond_donors': 1,
             'h_bond_acceptors': 1,
-            'polar_surface_area': 0.0,
-            'rotatable_bonds': 0
+            'ph': 7.0,
+            'temperature': 25.0
         }
         compound_id = self.api.insert_compound(external_data)
         self.assertIsNotNone(compound_id)
@@ -46,16 +49,49 @@ class TestChemPathIntegration(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.api.insert_compound(external_data)
 
-    @unittest.skipIf(not hasattr(ChemPathAPI, 'generate_report'), "Report generation not implemented")
-    def test_report_generation(self):
-        report = self.api.generate_report('Quercetin')
-        self.assertIn('Quercetin', report)
-        self.assertIn('Molecular Weight', report)
+    def test_predict_therapeutic_areas(self):
+        compound_data = {
+            'smiles': 'CC(=O)Oc1ccccc1C(=O)O',
+            'name': 'Aspirin'
+        }
+        result = self.api.predict_therapeutic_areas(compound_data)
+        self.assertIn('predicted_therapeutic_areas', result)
+        self.assertIsInstance(result['predicted_therapeutic_areas'], list)
 
-    @unittest.skipIf(not hasattr(ChemPathAPI, 'generate_report'), "Report generation not implemented")
-    def test_report_generation_invalid_compound(self):
-        report = self.api.generate_report('Invalid Compound')
-        self.assertNotIn('Molecular Weight', report)
+    def test_retrosynthesis(self):
+        compound_data = {
+            'smiles': 'CC(=O)Oc1ccccc1C(=O)O',
+            'name': 'Aspirin'
+        }
+        result = self.api.perform_retrosynthesis(compound_data)
+        self.assertIn('steps', result)
+        self.assertIsInstance(result['steps'], list)
+
+    def test_advanced_retrosynthesis(self):
+        compound_data = {
+            'smiles': 'CC(=O)Oc1ccccc1C(=O)O',
+            'name': 'Aspirin'
+        }
+        result = self.api.perform_advanced_retrosynthesis(compound_data)
+        self.assertIn('tree_image', result)
+        self.assertIsInstance(result['tree_image'], str)
+
+    def test_optimize_compounds(self):
+        compound_data = [
+            {'smiles': 'CC(=O)Oc1ccccc1C(=O)O', 'name': 'Aspirin'},
+            {'smiles': 'CC12CCC3C(C1CCC2O)CCC4=CC(=O)CCC34C', 'name': 'Testosterone'}
+        ]
+        result = self.api.optimize_compounds(compound_data)
+        self.assertIsInstance(result, list)
+        self.assertEqual(len(result), 2)
+        self.assertIn('optimization_priority', result[0])
+
+    def test_analyze_reagent(self):
+        result = self.api.analyze_reagent('Sodium borohydride')
+        self.assertIn('availability_score', result)
+        self.assertIn('estimated_cost', result)
+        self.assertIn('handling_requirements', result)
+        self.assertIn('environmental_impact_score', result)
 
 if __name__ == '__main__':
     unittest.main()

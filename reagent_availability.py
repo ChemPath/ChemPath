@@ -1,52 +1,52 @@
-# reagent_availability.py
-
-import csv
+from sqlalchemy.orm import Session
+from models import Reagent
+from database import engine
 from pathlib import Path
+import csv
 
 class ReagentDatabase:
     def __init__(self):
-        self.reagents = {}
         self.load_database()
 
     def load_database(self):
         database_path = Path(__file__).parent / "reagent_database.csv"
-        with open(database_path, 'r') as file:
-            reader = csv.DictReader(file)
-            for row in reader:
-                self.reagents[row['name']] = {
-                    'availability': float(row['availability']),
-                    'cost': float(row['cost']),
-                    'handling': int(row['handling']),
-                    'environmental_impact': float(row['environmental_impact'])
-                }
+        with Session(engine) as session:
+            with open(database_path, 'r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    reagent = Reagent(
+                        name=row['name'],
+                        availability=float(row['availability']),
+                        cost=float(row['cost']),
+                        handling=int(row['handling']),
+                        environmental_impact=float(row['environmental_impact'])
+                    )
+                    session.merge(reagent)
+            session.commit()
 
     def get_reagent_info(self, reagent_name):
-        return self.reagents.get(reagent_name, None)
+        with Session(engine) as session:
+            reagent = session.query(Reagent).filter_by(name=reagent_name).first()
+            return reagent
 
 def calculate_availability_score(reagent_name, database):
-    reagent_info = database.get_reagent_info(reagent_name)
-    if reagent_info:
-        return reagent_info['availability']
-    return 0
+    reagent = database.get_reagent_info(reagent_name)
+    return reagent.availability if reagent else 0
 
 def estimate_cost(reagent_name, database):
-    reagent_info = database.get_reagent_info(reagent_name)
-    if reagent_info:
-        return reagent_info['cost']
-    return float('inf')
+    reagent = database.get_reagent_info(reagent_name)
+    return reagent.cost if reagent else float('inf')
 
 def assess_handling_requirements(reagent_name, database):
-    reagent_info = database.get_reagent_info(reagent_name)
-    if reagent_info:
+    reagent = database.get_reagent_info(reagent_name)
+    if reagent:
         handling_levels = ['Low', 'Medium', 'High']
-        return handling_levels[reagent_info['handling']]
+        return handling_levels[reagent.handling]
     return 'Unknown'
 
 def evaluate_environmental_impact(reagent_name, database):
-    reagent_info = database.get_reagent_info(reagent_name)
-    if reagent_info:
-        return reagent_info['environmental_impact']
-    return float('inf')
+    reagent = database.get_reagent_info(reagent_name)
+    return reagent.environmental_impact if reagent else float('inf')
 
 def analyze_reagent_availability(reagent_name):
     database = ReagentDatabase()
@@ -55,12 +55,18 @@ def analyze_reagent_availability(reagent_name):
     handling = assess_handling_requirements(reagent_name, database)
     environmental_impact = evaluate_environmental_impact(reagent_name, database)
 
-    print(f"Reagent Availability Analysis for {reagent_name}:")
-    print(f"Availability Score: {availability:.2f}/10")
-    print(f"Estimated Cost: ${cost:.2f}")
-    print(f"Handling Requirements: {handling}")
-    print(f"Environmental Impact Score: {environmental_impact:.2f}/10")
+    return {
+        "reagent_name": reagent_name,
+        "availability_score": round(availability, 2),
+        "estimated_cost": round(cost, 2),
+        "handling_requirements": handling,
+        "environmental_impact_score": round(environmental_impact, 2)
+    }
 
-# Example usage
 if __name__ == "__main__":
-    analyze_reagent_availability("Sodium borohydride")
+    result = analyze_reagent_availability("Sodium borohydride")
+    print(f"Reagent Availability Analysis for {result['reagent_name']}:")
+    print(f"Availability Score: {result['availability_score']}/10")
+    print(f"Estimated Cost: ${result['estimated_cost']}")
+    print(f"Handling Requirements: {result['handling_requirements']}")
+    print(f"Environmental Impact Score: {result['environmental_impact_score']}/10")

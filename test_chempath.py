@@ -1,96 +1,67 @@
 import unittest
 import os
 from chempath_api import ChemPathAPI
-from src.database.chempath_database import populate_sample_data
-
+from database import engine
+from sqlalchemy.orm import Session
+from models import Compound, TherapeuticArea
 
 class TestChemPathAPI(unittest.TestCase):
     def setUp(self):
-        self.api = ChemPathAPI("test_database.db")
-        populate_sample_data(self.api.conn)
+        self.api = ChemPathAPI()
+        self.populate_sample_data()
+
+    def populate_sample_data(self):
+        with Session(engine) as session:
+            compound_data = {
+                'name': 'Test Compound',
+                'smiles': 'CC(=O)Nc1ccc(cc1)S(=O)(=O)N',
+                'molecular_weight': 300.0,
+                'logp': 2.5,
+                'h_bond_donors': 2,
+                'h_bond_acceptors': 5,
+                'ph': 7.0,
+                'temperature': 25.0
+            }
+            compound = Compound(**compound_data)
+            session.add(compound)
+            session.commit()
 
     def test_chempath_api(self):
-        self.api.create_tables()
         compound_data = {
-            'name': 'Test Compound',
-            'smiles': 'CC(=O)Nc1ccc(cc1)S(=O)(=O)N',
-            'molecular_weight': 300.0,
-            'logp': 2.5,
-            'plant_source': 'Test Plant',
-            'biological_activity': 'Test Activity',
-            'traditional_use': 'Test Use',
-            'h_bond_donors': 2,
-            'h_bond_acceptors': 5,
-            'polar_surface_area': 100.0,
-            'rotatable_bonds': 5
+            'name': 'New Compound',
+            'smiles': 'CC(=O)Oc1ccccc1C(=O)O',
+            'molecular_weight': 180.16,
+            'logp': 1.19,
+            'h_bond_donors': 1,
+            'h_bond_acceptors': 4,
+            'ph': 7.0,
+            'temperature': 25.0
         }
-        self.api.insert_compound(compound_data)
-        result = self.api.get_compound_by_smiles(compound_data['smiles'])
+        result = self.api.insert_compound(compound_data)
         self.assertIsNotNone(result)
+        retrieved_compound = self.api.get_compound_by_smiles(compound_data['smiles'])
+        self.assertIsNotNone(retrieved_compound)
 
+    def test_predict_therapeutic_areas(self):
+        smiles = 'CC(=O)Oc1ccccc1C(=O)O'
+        result = self.api.predict_therapeutic_areas(smiles)
+        self.assertIsInstance(result, list)
 
-class TestChemPathCore(unittest.TestCase):
-    def setUp(self):
-        self.api = ChemPathAPI("test_database.db")
-        populate_sample_data(self.api.conn)
+    def test_perform_retrosynthesis(self):
+        smiles = 'CC(=O)Oc1ccccc1C(=O)O'
+        result = self.api.perform_retrosynthesis(smiles)
+        self.assertIn('steps', result)
 
     def test_optimize_structure(self):
-        compound = 'CC(=O)Nc1ccc(cc1)S(=O)(=O)N'
-        goal = 'functional_group'
-        params = {"target": "[OH]", "replacement": "[NH2]"}
-        optimized_compounds = self.api.optimize_structure(compound, goal, params)
-        self.assertIsInstance(optimized_compounds, str)
-
-         # Test with invalid input compound
-        invalid_compound = 'invalid_smiles_string'
-        with self.assertRaises(ValueError):  # Change Exception to ValueError
-            self.api.optimize_structure(invalid_compound, goal, params)
-
-
-
-class TestChemPathDatabase(unittest.TestCase):
-    def setUp(self):
-        self.db_path = "test_database.db"
-        if os.path.exists(self.db_path):
-            try:
-                os.remove(self.db_path)
-            except PermissionError:
-                pass  # File is in use, continue with existing database
-        self.api = ChemPathAPI(self.db_path)
-        populate_sample_data(self.api.conn)
-
-
-
-    def test_create_table(self):
-        self.api.create_tables()
-        result = self.api.search_compounds("CC(=O)Nc1ccc(cc1)S(=O)(=O)N")
-        self.assertIsNotNone(result)
-
-    def test_insert_compound(self):
-        compound_data = {
-            'name': 'Test Compound',
-            'smiles': 'CC(=O)Nc1ccc(cc1)S(=O)(=O)N',
-            'molecular_weight': 300.0,
-            'logp': 2.5,
-            'plant_source': 'Test Plant',
-            'biological_activity': 'Test Activity',
-            'traditional_use': 'Test Use',
-            'h_bond_donors': 2,
-            'h_bond_acceptors': 5,
-            'polar_surface_area': 100.0,
-            'rotatable_bonds': 5
-        }
-        self.api.insert_compound(compound_data)
-        result = self.api.get_compound_by_smiles(compound_data['smiles'])
-        self.assertIsNotNone(result)
+        smiles = 'CC(=O)Oc1ccccc1C(=O)O'
+        result = self.api.optimize_structure(smiles)
+        self.assertIsInstance(result, list)
 
     def tearDown(self):
-        self.api.conn.close()
-        try:
-            os.remove(self.api.db_name)
-        except OSError:
-            print(f"Unable to delete {self.api.db_name}. It may be in use by another process.")
-
+        with Session(engine) as session:
+            session.query(Compound).delete()
+            session.query(TherapeuticArea).delete()
+            session.commit()
 
 if __name__ == '__main__':
     unittest.main()
