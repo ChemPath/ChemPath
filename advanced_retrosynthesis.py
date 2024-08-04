@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from src.database.chempath_database import engine, create_tables, Session
 from sqlalchemy.orm import sessionmaker
 from models import Base, Compound, AdvancedRetrosynthesisResult
+import heapq
 
 SessionLocal = sessionmaker(bind=engine)
 
@@ -21,6 +22,75 @@ class ChemicalTransformationRule:
         # Logic to apply the transformation rule
         pass
 
+def build_retrosynthesis_tree(smiles, depth=3, strategy="dfs"):
+    mol = Chem.MolFromSmiles(smiles)
+    G = nx.DiGraph()
+    G.add_node(smiles)
+    
+    if strategy == "dfs":
+        dfs(smiles, depth, G)
+    elif strategy == "bfs":
+        bfs(smiles, depth, G)
+    elif strategy == "dijkstra":
+        dijkstra(smiles, depth, G)
+    # Add other search strategies (A*)
+    
+    return G
+
+
+def dijkstra(start_smiles, max_depth, G):
+    distances = {start_smiles: 0}
+    pq = [(0, start_smiles)]
+    while pq:
+        current_distance, current_smiles = heapq.heappop(pq)
+        
+        if current_distance > max_depth:
+            continue
+        
+        current_mol = Chem.MolFromSmiles(current_smiles)
+        disconnection_points = identify_disconnection_points(current_mol)
+        
+        for disconnection in disconnection_points:
+            fragments = perform_disconnection(current_mol, disconnection)
+            for fragment in fragments:
+                new_distance = current_distance + 1
+                if fragment not in distances or new_distance < distances[fragment]:
+                    distances[fragment] = new_distance
+                    G.add_edge(current_smiles, fragment)
+                    heapq.heappush(pq, (new_distance, fragment))
+    
+    return G
+def heuristic(smiles):
+    mol = Chem.MolFromSmiles(smiles)
+    return mol.GetNumAtoms() + mol.GetNumBonds()
+
+def astar(start_smiles, max_depth, G):
+    open_set = [(0, 0, start_smiles)]
+    g_score = {start_smiles: 0}
+    f_score = {start_smiles: heuristic(start_smiles)}
+    
+    while open_set:
+        current_f, current_g, current_smiles = heapq.heappop(open_set)
+        
+        if current_g > max_depth:
+            continue
+        
+        current_mol = Chem.MolFromSmiles(current_smiles)
+        disconnection_points = identify_disconnection_points(current_mol)
+        
+        for disconnection in disconnection_points:
+            fragments = perform_disconnection(current_mol, disconnection)
+            for fragment in fragments:
+                tentative_g = current_g + 1
+                
+                if fragment not in g_score or tentative_g < g_score[fragment]:
+                    g_score[fragment] = tentative_g
+                    f_score[fragment] = tentative_g + heuristic(fragment)
+                    G.add_edge(current_smiles, fragment)
+                    heapq.heappush(open_set, (f_score[fragment], tentative_g, fragment))
+    
+    return G
+
 def load_external_reactions(database_name):
     # Placeholder for loading reactions from external databases
     # This function would connect to Reaxys, SciFinder, or other databases
@@ -29,23 +99,103 @@ def load_external_reactions(database_name):
 
 def identify_disconnection_points(mol):
     disconnection_points = []
+    
+    # Bond disconnections
     for bond in mol.GetBonds():
         if bond.GetBondType() == Chem.BondType.SINGLE:
             disconnection_points.append(("bond", bond.GetIdx()))
-        # Add functional group disconnections
-        # Add ring disconnections
+    
+    # Functional group disconnections
+    fg_patterns = {
+        "ester": Chem.MolFromSmarts("C(=O)O[C,H]"),
+        "amide": Chem.MolFromSmarts("C(=O)N[C,H]"),
+        "ether": Chem.MolFromSmarts("[C,H]O[C,H]"),
+    }
+    for fg_name, fg_pattern in fg_patterns.items():
+        matches = mol.GetSubstructMatches(fg_pattern)
+        for match in matches:
+            disconnection_points.append(("functional_group", (fg_name, match)))
+    
+    # Ring disconnections
+    ri = mol.GetRingInfo()
+    for ring in ri.AtomRings():
+        if len(ring) >= 5:  # Only consider rings with 5 or more atoms
+            disconnection_points.append(("ring", ring))
+    
     return disconnection_points
 
-def perform_disconnection(mol, disconnection):
-    disconnection_type, idx = disconnection
+def perform_disconnection(current_mol, disconnection):
+    rwmol = Chem.RWMol(current_mol)
+    print("Molecule:", Chem.MolToSmiles(rwmol))
+    
+    aromatic_atoms = [atom.GetIdx() for atom in rwmol.GetAromaticAtoms()]
+    print("Aromatic atoms:", aromatic_atoms)
+    
+    disconnection_type, data = disconnection
     if disconnection_type == "bond":
-        rwmol = Chem.RWMol(mol)
-        rwmol.RemoveBond(rwmol.GetBondWithIdx(idx).GetBeginAtomIdx(),
-                         rwmol.GetBondWithIdx(idx).GetEndAtomIdx())
+        rwmol.RemoveBond(rwmol.GetBondWithIdx(data).GetBeginAtomIdx(),
+                         rwmol.GetBondWithIdx(data).GetEndAtomIdx())
+    
+    print("After disconnection:", Chem.MolToSmiles(rwmol))
+    
+    try:
+        Chem.SanitizeMol(rwmol)
+        print("After sanitization:", Chem.MolToSmiles(rwmol))
         fragments = Chem.GetMolFrags(rwmol, asMols=True)
         return [Chem.MolToSmiles(frag) for frag in fragments]
-    # Handle other disconnection types
-    return []
+    except Chem.AtomKekulizeException as e:
+        print(f"Error: {e}")
+        # Try alternative disconnection strategies
+        try:
+            fragments = Chem.FragmentOnBRICSBonds(rwmol)
+            return [Chem.MolToSmiles(frag) for frag in fragments]
+        except:
+            print("Alternative disconnection strategy failed")
+            return []
+    
+    if disconnection_type == "functional_group":
+        fg_name, match = data
+        rwmol = Chem.RWMol(current_mol)
+        if fg_name == "ester":
+            rwmol.RemoveBond(match[1], match[3])
+        elif fg_name == "amide":
+            rwmol.RemoveBond(match[1], match[2])
+        elif fg_name == "ether":
+            rwmol.RemoveBond(match[0], match[1])
+        fragments = Chem.GetMolFrags(rwmol, asMols=True)
+        return [Chem.MolToSmiles(frag) for frag in fragments]
+    
+    elif disconnection_type == "ring":
+        rwmol = Chem.RWMol(current_mol)
+        rwmol.RemoveBond(data[0], data[-1])  # Break the ring at an arbitrary point
+        fragments = Chem.GetMolFrags(rwmol, asMols=True)
+        return [Chem.MolToSmiles(frag) for frag in fragments]
+    
+    return []    # Handle other disconnection types...
+    return []    # Handle other disconnection types...
+      
+
+def bfs(start_smiles, max_depth, G):
+    queue = [(start_smiles, 0)]
+    while queue:
+        current_smiles, current_depth = queue.pop(0)
+        if current_depth == max_depth:
+            continue
+        try:
+            current_mol = Chem.MolFromSmiles(current_smiles, sanitize=False)
+            Chem.SanitizeMol(current_mol, sanitizeOps=Chem.SanitizeFlags.SANITIZE_ALL^Chem.SanitizeFlags.SANITIZE_KEKULIZE)
+            disconnection_points = identify_disconnection_points(current_mol)
+            for disconnection in disconnection_points:
+                fragments = perform_disconnection(current_mol, disconnection)
+                for fragment in fragments:
+                    G.add_edge(current_smiles, fragment)
+                    queue.append((fragment, current_depth + 1))
+        except Chem.AtomKekulizeException as e:
+            print(f"Error in BFS: {e}")
+            continue
+
+
+
 
 def build_retrosynthesis_tree(smiles, depth=3, strategy="dfs"):
     mol = Chem.MolFromSmiles(smiles)
@@ -56,9 +206,13 @@ def build_retrosynthesis_tree(smiles, depth=3, strategy="dfs"):
         dfs(smiles, depth, G)
     elif strategy == "bfs":
         bfs(smiles, depth, G)
-    # Add other search strategies (Dijkstra's, A*)
+    elif strategy == "dijkstra":
+        dijkstra(smiles, depth, G)
+    elif strategy == "astar":
+        astar(smiles, depth, G)
     
     return G
+
 
 def dfs(current_smiles, current_depth, G):
     if current_depth == 0:
