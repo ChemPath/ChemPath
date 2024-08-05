@@ -1,17 +1,17 @@
 import heapq
 import sqlite3
 from collections import defaultdict
-
 import matplotlib.pyplot as plt
 import networkx as nx
 import numpy as np
 from rdkit import Chem
 from rdkit.Chem import AllChem, Descriptors
 from sqlalchemy.orm import Session, sessionmaker
-
-from models import Base, Compound, AdvancedRetrosynthesisResult
-from src.database.chempath_database import engine, Session
-
+from .base import Base
+from .compound import Compound
+from src.database.chempath_database import engine
+from sqlalchemy import Column, Integer, String, Float, JSON
+from networkx.readwrite import json_graph
 Session = sessionmaker(bind=engine)
 
 import logging
@@ -20,21 +20,25 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 def get_db_connection():
+    """Returns a connection to the SQLite database."""
     return sqlite3.connect('chempath.db')
 
 def get_reaction_data(reaction_smiles):
+    """Retrieves reaction data from the database."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM reactions WHERE reaction_smiles = ?", (reaction_smiles,))
         return cursor.fetchone()
 
 def get_chemical_data(smiles):
+    """Retrieves chemical data from the database."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM compounds WHERE smiles = ?", (smiles,))
         return cursor.fetchone()
 
 def assess_reagent_availability(reagents):
+    """Assesses the availability of reagents."""
     availability_scores = {}
     for reagent in reagents:
         commercial_score = check_commercial_availability(reagent)
@@ -45,6 +49,7 @@ def assess_reagent_availability(reagents):
     return availability_scores
 
 def check_commercial_availability(reagent):
+    """Checks commercial availability of a reagent."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT availability FROM plant_compounds WHERE smiles = ?", (reagent,))
@@ -52,11 +57,13 @@ def check_commercial_availability(reagent):
     return result[0] / 100 if result else 0.1
 
 def assess_synthetic_accessibility(reagent):
+    """Assesses synthetic accessibility of a reagent."""
     mol = Chem.MolFromSmiles(reagent)
     sa_score = Descriptors.MolLogP(mol)
     return 1 / (1 + np.exp(-0.5 * (sa_score - 2)))
 
 def evaluate_cost_and_scalability(reagent):
+    """Evaluates cost and scalability of a reagent."""
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT molecular_weight FROM plant_compounds WHERE smiles = ?", (reagent,))
@@ -69,6 +76,7 @@ def evaluate_cost_and_scalability(reagent):
     return 0.5
 
 class ChemicalTransformationRule:
+    """Represents a chemical transformation rule."""
     def __init__(self, reaction_type, conditions, constraints):
         self.reaction_type = reaction_type
         self.conditions = conditions
@@ -79,6 +87,7 @@ class ChemicalTransformationRule:
         pass
 
 class Node:
+    """Represents a node in the retrosynthesis tree."""
     def __init__(self, smiles, depth):
         self.smiles = smiles
         self.children = []
@@ -86,37 +95,59 @@ class Node:
         self.feasibility_score = None
         self.availability_score = None
 
-def build_retrosynthesis_tree(start_smiles, max_depth):
-    root = Node(start_smiles, 0)
-    queue = [root]
+def build_retrosynthesis_tree(start_smiles, max_depth, strategy="dfs"):
+    """Builds a retrosynthesis tree using the specified strategy."""
+    mol = Chem.MolFromSmiles(start_smiles)
+    G = nx.DiGraph()
+    G.add_node(start_smiles)
+    
+    if strategy == "dfs":
+        dfs(start_smiles, max_depth, G)
+    elif strategy == "bfs":
+        bfs(start_smiles, max_depth, G)
+    elif strategy == "dijkstra":
+        dijkstra(start_smiles, max_depth, G)
+    elif strategy == "astar":
+        astar(start_smiles, max_depth, G)
+    
+    return G
 
+def dfs(current_smiles, current_depth, G):
+    """Performs a depth-first search to build the retrosynthesis tree."""
+    if current_depth == 0:
+        return
+    
+    current_mol = Chem.MolFromSmiles(current_smiles)
+    disconnection_points = identify_disconnection_points(current_mol)
+    
+    for disconnection in disconnection_points:
+        fragments = perform_disconnection(current_mol, disconnection)
+        for fragment in fragments:
+            G.add_edge(current_smiles, fragment)
+            dfs(fragment, current_depth - 1, G)
+
+def bfs(start_smiles, max_depth, G):
+    """Performs a breadth-first search to build the retrosynthesis tree."""
+    queue = [(start_smiles, 0)]
     while queue:
-        current_node = queue.pop(0)
-        if current_node.depth < max_depth:
-            mol = Chem.MolFromSmiles(current_node.smiles)
-            disconnection_points = identify_disconnection_points(mol)
+        current_smiles, current_depth = queue.pop(0)
+        if current_depth == max_depth:
+            continue
+        try:
+            current_mol = Chem.MolFromSmiles(current_smiles, sanitize=False)
+            Chem.SanitizeMol(current_mol, sanitizeOps=Chem.SanitizeFlags.SANITIZE_ALL^Chem.SanitizeFlags.SANITIZE_KEKULIZE)
+            disconnection_points = identify_disconnection_points(current_mol)
             for disconnection in disconnection_points:
-                fragments = perform_disconnection(mol, disconnection)
+                fragments = perform_disconnection(current_mol, disconnection)
                 for fragment in fragments:
-                    child_node = Node(fragment, current_node.depth + 1)
-                    current_node.children.append(child_node)
-                    queue.append(child_node)
-            
-            pathway = get_pathway_to_root(current_node)
-            current_node.feasibility_score = assess_synthetic_feasibility(pathway)
-            current_node.availability_score = assess_reagent_availability([current_node.smiles])
-
-    return root
-
-def get_pathway_to_root(node):
-    pathway = []
-    current = node
-    while current:
-        pathway.append(current.smiles)
-        current = current.parent
-    return pathway[::-1]
+                    G.add_edge(current_smiles, fragment)
+                    queue.append((fragment, current_depth + 1))
+        except Chem.AtomKekulizeException as e:
+            logger.info(f"Error in BFS: {e}")
+            continue
 
 def dijkstra(start_smiles, max_depth, G):
+    """Performs Dijkstra's algorithm to build the retrosynthesis tree."""
     distances = {start_smiles: 0}
     pq = [(0, start_smiles)]
     while pq:
@@ -139,11 +170,8 @@ def dijkstra(start_smiles, max_depth, G):
     
     return G
 
-def heuristic(smiles):
-    mol = Chem.MolFromSmiles(smiles)
-    return mol.GetNumAtoms() + mol.GetNumBonds()
-
 def astar(start_smiles, max_depth, G):
+    r"""Performs A* search to build the retrosynthesis tree."""
     open_set = [(0, 0, start_smiles)]
     g_score = {start_smiles: 0}
     f_score = {start_smiles: heuristic(start_smiles)}
@@ -170,11 +198,13 @@ def astar(start_smiles, max_depth, G):
     
     return G
 
-def load_external_reactions(database_name):
-    # Placeholder for loading reactions from external databases
-    pass
+def heuristic(smiles):
+    """Calculates the heuristic score for a molecule."""
+    mol = Chem.MolFromSmiles(smiles)
+    return mol.GetNumAtoms() + mol.GetNumBonds()
 
 def identify_disconnection_points(mol):
+    """Identifies disconnection points in a molecule."""
     disconnection_points = []
     
     for bond in mol.GetBonds():
@@ -199,12 +229,13 @@ def identify_disconnection_points(mol):
     return disconnection_points
 
 def perform_disconnection(current_mol, disconnection):
+    """Performs disconnection on a molecule."""
     rwmol = Chem.RWMol(current_mol)
     logger.info("Molecule: %s", Chem.MolToSmiles(rwmol))
     
     aromatic_atoms = [atom.GetIdx() for atom in rwmol.GetAromaticAtoms()]
     logger.info("Aromatic atoms: %s", aromatic_atoms)
-    
+
     disconnection_type, data = disconnection
     if disconnection_type == "bond":
         rwmol.RemoveBond(rwmol.GetBondWithIdx(data).GetBeginAtomIdx(),
@@ -247,6 +278,7 @@ def perform_disconnection(current_mol, disconnection):
     return []
 
 def assess_synthetic_feasibility(pathway):
+    """Assesses synthetic feasibility of a pathway."""
     complexity_score = evaluate_reaction_complexity(pathway)
     availability_score = evaluate_reactant_availability(pathway)
     conditions_score = evaluate_reaction_conditions(pathway)
@@ -258,6 +290,7 @@ def assess_synthetic_feasibility(pathway):
     return feasibility_score
 
 def evaluate_reaction_complexity(pathway):
+    """Evaluates reaction complexity of a pathway."""
     complexity_scores = []
     for reaction in pathway:
         reaction_data = get_reaction_data(reaction)
@@ -271,6 +304,7 @@ def evaluate_reaction_complexity(pathway):
     return np.mean(complexity_scores)
 
 def evaluate_reactant_availability(pathway):
+    """Evaluates reactant availability of a pathway."""
     availability_scores = []
     for reaction in pathway:
         reaction_data = get_reaction_data(reaction)
@@ -282,6 +316,7 @@ def evaluate_reactant_availability(pathway):
     return np.mean(availability_scores)
 
 def evaluate_reaction_conditions(pathway):
+    """Evaluates reaction conditions of a pathway."""
     condition_scores = []
     for reaction in pathway:
         reaction_data = get_reaction_data(reaction)
@@ -296,6 +331,7 @@ def evaluate_reaction_conditions(pathway):
     return np.mean(condition_scores)
 
 def evaluate_yield_and_selectivity(pathway):
+    """Evaluates yield and selectivity of a pathway."""
     yield_scores = []
     for reaction in pathway:
         reaction_data = get_reaction_data(reaction)
@@ -306,55 +342,8 @@ def evaluate_yield_and_selectivity(pathway):
     
     return np.mean(yield_scores)
 
-def bfs(start_smiles, max_depth, G):
-    queue = [(start_smiles, 0)]
-    while queue:
-        current_smiles, current_depth = queue.pop(0)
-        if current_depth == max_depth:
-            continue
-        try:
-            current_mol = Chem.MolFromSmiles(current_smiles, sanitize=False)
-            Chem.SanitizeMol(current_mol, sanitizeOps=Chem.SanitizeFlags.SANITIZE_ALL^Chem.SanitizeFlags.SANITIZE_KEKULIZE)
-            disconnection_points = identify_disconnection_points(current_mol)
-            for disconnection in disconnection_points:
-                fragments = perform_disconnection(current_mol, disconnection)
-                for fragment in fragments:
-                    G.add_edge(current_smiles, fragment)
-                    queue.append((fragment, current_depth + 1))
-        except Chem.AtomKekulizeException as e:
-            logger.info(f"Error in BFS: {e}")
-            continue
-
-def build_retrosynthesis_tree(smiles, depth=3, strategy="dfs"):
-    mol = Chem.MolFromSmiles(smiles)
-    G = nx.DiGraph()
-    G.add_node(smiles)
-    
-    if strategy == "dfs":
-        dfs(smiles, depth, G)
-    elif strategy == "bfs":
-        bfs(smiles, depth, G)
-    elif strategy == "dijkstra":
-        dijkstra(smiles, depth, G)
-    elif strategy == "astar":
-        astar(smiles, depth, G)
-    
-    return G
-
-def dfs(current_smiles, current_depth, G):
-    if current_depth == 0:
-        return
-    
-    current_mol = Chem.MolFromSmiles(current_smiles)
-    disconnection_points = identify_disconnection_points(current_mol)
-    
-    for disconnection in disconnection_points:
-        fragments = perform_disconnection(current_mol, disconnection)
-        for fragment in fragments:
-            G.add_edge(current_smiles, fragment)
-            dfs(fragment, current_depth - 1, G)
-
 def visualize_retrosynthesis_tree(G, result_id):
+    """Visualizes the retrosynthesis tree."""
     pos = nx.spring_layout(G)
     nx.draw(G, pos, with_labels=True, node_color='lightblue', node_size=500, font_size=8)
     labels = {}
@@ -372,16 +361,15 @@ def visualize_retrosynthesis_tree(G, result_id):
     
     return filename
 
-
-
-
 def add_nodes_and_edges(G, node):
+    """Adds nodes and edges to the graph."""
     G.add_node(node.smiles, feasibility_score=node.feasibility_score, availability_score=node.availability_score)
     for child in node.children:
         G.add_edge(node.smiles, child.smiles)
         add_nodes_and_edges(G, child)
 
 def insert_sample_compounds():
+    """Inserts sample compounds into the database."""
     with Session() as session:
         sample_compounds = [
             Compound(smiles="CC(=O)Oc1ccccc1C(=O)O", name="Aspirin"),
@@ -393,10 +381,12 @@ def insert_sample_compounds():
         session.commit()
 
 def create_tables():
+    """Creates tables in the database."""
     Base.metadata.create_all(engine)
     logger.info("Database tables created successfully.")
 
 def advanced_retrosynthetic_analysis(compound_id, smiles, depth=3, strategy="dfs"):
+    """Performs advanced retrosynthetic analysis."""
     session = Session()
     try:
         compound = session.get(Compound, compound_id)
@@ -404,54 +394,71 @@ def advanced_retrosynthetic_analysis(compound_id, smiles, depth=3, strategy="dfs
             return {"error": "Compound not found"}
 
         G = build_retrosynthesis_tree(smiles, depth, strategy)
-        
-        result = AdvancedRetrosynthesisResult(
-            compound_id=compound_id,
-            depth=depth,
-            strategy=strategy,
-            num_nodes=G.number_of_nodes(),
-            num_edges=G.number_of_edges()
-        )
-        session.add(result)
-        session.flush()
 
-        tree_image = visualize_retrosynthesis_tree(G, result.id)
-        result.tree_image = tree_image
-        
-        session.commit()
-
-        return {
-            "result_id": result.id,
-            "num_nodes": result.num_nodes,
-            "num_edges": result.num_edges,
-            "tree_image": result.tree_image
+        result = {
+            'graph': G,
+            'num_nodes': G.number_of_nodes(),
+            'num_edges': G.number_of_edges(),
+            'num_pathways': len(list(nx.all_simple_paths(G, smiles, [node for node in G.nodes() if G.out_degree(node) == 0]))),
+            'tree_image': visualize_retrosynthesis_tree(G, compound_id)
         }
+
+        graph_data = json_graph.node_link_data(result['graph'])
+        result['graph'] = graph_data
+    
+        return result
     finally:
         session.close()
 
+from networkx.readwrite import json_graph
 def get_advanced_retrosynthesis_result(result_id):
-    with Session(engine) as session:
-        result = session.query(AdvancedRetrosynthesisResult).get(result_id)
-        if result:
-            return {
-                "compound_id": result.compound_id,
-                "depth": result.depth,
-                "strategy": result.strategy,
-                "num_nodes": result.num_nodes,
-                "num_edges": result.num_edges,
-                "tree_image": result.tree_image
-            }
-        return {"error": "Result not found"}
+    result = AdvancedRetrosynthesisResult.query.get(result_id)
+    if result:
+        graph = json_graph.node_link_graph(result.graph)
+        return {
+            'result_id': result.id,
+            'compound_id': result.compound_id,
+            'depth': result.depth,
+            'strategy': result.strategy,
+            'num_nodes': result.num_nodes,
+            'num_edges': result.num_edges,
+            'num_pathways': result.num_pathways,
+            'tree_image': result.tree_image,
+            'graph': graph
+        }
+    return None
 
-if __name__ == "__main__":
+        
+
+
+class AdvancedRetrosynthesisResult(Base):
+    __tablename__ = 'advanced_retrosynthesis_results'
+
+    id = Column(Integer, primary_key=True)
+    compound_id = Column(Integer, nullable=False)
+    depth = Column(Integer, nullable=False)
+    strategy = Column(String, nullable=False)
+    num_nodes = Column(Integer)
+    num_edges = Column(Integer)
+    num_pathways = Column(Integer)
+    tree_image = Column(String)
+    graph = Column(JSON)  # New field to store graph data
+
+    def __repr__(self):
+        return f"<AdvancedRetrosynthesisResult(id={self.id}, compound_id={self.compound_id})>"
+
+def main():
     create_tables()
     insert_sample_compounds()
     
-    with Session() as session:
-        compound = session.query(Compound).filter_by(name="Aspirin").first()
-    if compound:
-        result = advanced_retrosynthetic_analysis(compound.id, compound.smiles, depth=3, strategy="bfs")
-        print(result)
-    else:
-        print("Sample compound not found.")
+    compound_id = 1
+    smiles = "CC(=O)Oc1ccccc1C(=O)O"
+    depth = 3
+    strategy = "dfs"
+    
+    result = advanced_retrosynthetic_analysis(compound_id, smiles, depth, strategy)
+    print(result)
 
+if __name__ == "__main__":
+    main()   
+    

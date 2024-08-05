@@ -8,7 +8,7 @@ from structural_optimization import functional_group_substitution, ring_system_a
 import requests
 from ml_model import predict_therapeutic_areas as ml_predict_therapeutic_areas
 from ml_model import train_model
-from retrosynthesis import perform_retrosynthesis as core_perform_retrosynthesis
+from models.retrosynthesis import perform_retrosynthesis as core_perform_retrosynthesis
 
 def setup_logging():
     logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')

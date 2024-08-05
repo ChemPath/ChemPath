@@ -8,6 +8,49 @@ import asyncio
 
 app = Flask(__name__)
 engine, session = create_engine_and_session()
+import sqlite3
+from rdkit import Chem
+from rdkit.Chem import AllChem
+from src.core.chempath_core import optimize_structure, predict_properties, retrosynthesize
+
+class ChemPathAPI:
+    def __init__(self, db_path):
+        self.db_path = db_path
+
+    def search_compounds(self, query):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        query = f"%{query}%"
+        cursor.execute("""
+            SELECT name, smiles, molecular_weight, logp 
+            FROM plant_compounds 
+            WHERE name LIKE ? OR smiles LIKE ?
+        """, (query, query))
+        results = cursor.fetchall()
+        total_count = len(results)
+        conn.close()
+        return results, total_count
+
+    def optimize_structure(self, smiles):
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return "Invalid SMILES"
+        optimized_mol = optimize_structure(mol)
+        return Chem.MolToSmiles(optimized_mol)
+
+    def perform_retrosynthesis(self, smiles):
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return {"error": "Invalid SMILES"}
+        retro_steps = retrosynthesize(mol)
+        return {"steps": retro_steps}
+
+    def predict_properties(self, smiles):
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            return {"error": "Invalid SMILES"}
+        properties = predict_properties(mol)
+        return properties
 
 class CompoundSchema(Schema):
     id = fields.Int(dump_only=True)
