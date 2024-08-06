@@ -12,6 +12,11 @@ from .compound import Compound
 from src.database.chempath_database import engine
 from sqlalchemy import Column, Integer, String, Float, JSON
 from networkx.readwrite import json_graph
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import mean_squared_error
+import joblib
+
 Session = sessionmaker(bind=engine)
 
 import logging
@@ -28,7 +33,47 @@ def get_reaction_data(reaction_smiles):
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM reactions WHERE reaction_smiles = ?", (reaction_smiles,))
-        return cursor.fetchone()
+        result = cursor.fetchone()
+    
+    if result:
+        return {
+            'reactants': result[2].split(','),
+            'products': result[3].split(','),
+            'num_steps': result[4],
+            'temperature': result[5],
+            'pressure': result[6],
+            'yield': result[7],
+            'selectivity': result[8]
+        }
+    else:
+        # Return default values if no data is found
+        return {
+            'reactants': [],
+            'products': [],
+            'num_steps': 1,
+            'temperature': 25,
+            'pressure': 1,
+            'yield': 0,
+            'selectivity': 0
+        }
+
+def insert_sample_reactions():
+    """Inserts sample reactions into the database."""
+    sample_reactions = [
+        ("CC(=O)O.CCO>>CC(=O)OCC", "CC(=O)O,CCO", "CC(=O)OCC", 1, 78, 1, 95, 98),
+        ("C=CC=O.C1CCCCC1N>>C1CCCCC1N1CC=CC1", "C=CC=O,C1CCCCC1N", "C1CCCCC1N1CC=CC1", 1, 25, 1, 85, 95),
+        ("CC(C)(C)OC(=O)NCCC(=O)O.NCC1=CC=C(F)C=C1>>CC(C)(C)OC(=O)NCCC(=O)NCC1=CC=C(F)C=C1", 
+         "CC(C)(C)OC(=O)NCCC(=O)O,NCC1=CC=C(F)C=C1", "CC(C)(C)OC(=O)NCCC(=O)NCC1=CC=C(F)C=C1", 1, 0, 1, 75, 90)
+    ]
+    
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.executemany('''
+            INSERT INTO reactions (reaction_smiles, reactants, products, num_steps, temperature, pressure, yield, selectivity)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', sample_reactions)
+        conn.commit()
+    logger.info(f"Inserted {len(sample_reactions)} sample reactions")
 
 def get_chemical_data(smiles):
     """Retrieves chemical data from the database."""
@@ -74,6 +119,82 @@ def evaluate_cost_and_scalability(reagent):
         scalability_factor = 1 - cost_factor
         return (cost_factor + scalability_factor) / 2
     return 0.5
+
+def assess_synthetic_feasibility(pathway):
+    """Assesses synthetic feasibility of a pathway."""
+    complexity_score = evaluate_reaction_complexity(pathway)
+    availability_score = evaluate_reactant_availability(pathway)
+    conditions_score = evaluate_reaction_conditions(pathway)
+    yield_score = evaluate_yield_and_selectivity(pathway)
+    
+    weights = [0.3, 0.3, 0.2, 0.2]
+    feasibility_score = np.dot([complexity_score, availability_score, conditions_score, yield_score], weights)
+    
+    return feasibility_score
+
+def evaluate_reaction_complexity(pathway):
+    """Evaluates reaction complexity of a pathway."""
+    complexity_scores = []
+    for reaction in pathway:
+        reaction_data = get_reaction_data(reaction)
+        num_reactants = len(reaction_data['reactants'])
+        num_products = len(reaction_data['products'])
+        num_steps = reaction_data['num_steps']
+        
+        complexity = (num_reactants + num_products) * num_steps / 10
+        complexity_scores.append(min(complexity, 1))
+    
+    return np.mean(complexity_scores)
+
+def evaluate_reactant_availability(pathway):
+    """Evaluates reactant availability of a pathway."""
+    availability_scores = []
+    for reaction in pathway:
+        reaction_data = get_reaction_data(reaction)
+        for reactant in reaction_data['reactants']:
+            chemical_data = get_chemical_data(reactant)
+            availability = chemical_data['availability_score']
+            availability_scores.append(availability)
+    
+    return np.mean(availability_scores)
+
+def evaluate_reaction_conditions(pathway):
+    """Evaluates reaction conditions of a pathway."""
+    condition_scores = []
+    for reaction in pathway:
+        reaction_data = get_reaction_data(reaction)
+        temperature = reaction_data['temperature']
+        pressure = reaction_data['pressure']
+        
+        temp_score = 1 - (abs(temperature - 25) / 200)
+        pressure_score = 1 - (abs(pressure - 1) / 100)
+        
+        condition_scores.append((temp_score + pressure_score) / 2)
+    
+    return np.mean(condition_scores)
+
+def evaluate_yield_and_selectivity(pathway):
+    """Evaluates yield and selectivity of a pathway."""
+    yield_scores = []
+    for reaction in pathway:
+        reaction_data = get_reaction_data(reaction)
+        yield_value = reaction_data['yield']
+        selectivity = reaction_data['selectivity']
+        
+        yield_scores.append((yield_value * selectivity) / 100)
+    
+    return np.mean(yield_scores)
+
+def rank_and_filter_pathways(pathways, threshold=0.5):
+    """Ranks and filters pathways based on synthetic feasibility."""
+    ranked_pathways = []
+    for pathway in pathways:
+        feasibility_score = assess_synthetic_feasibility(pathway)
+        if feasibility_score >= threshold:
+            ranked_pathways.append((feasibility_score, pathway))
+    
+    ranked_pathways.sort(reverse=True)
+    return ranked_pathways
 
 class ChemicalTransformationRule:
     """Represents a chemical transformation rule."""
@@ -277,70 +398,54 @@ def perform_disconnection(current_mol, disconnection):
     
     return []
 
-def assess_synthetic_feasibility(pathway):
-    """Assesses synthetic feasibility of a pathway."""
-    complexity_score = evaluate_reaction_complexity(pathway)
-    availability_score = evaluate_reactant_availability(pathway)
-    conditions_score = evaluate_reaction_conditions(pathway)
-    yield_score = evaluate_yield_and_selectivity(pathway)
+def train_ml_model(X, y):
+    """Trains a machine learning model for reaction prediction."""
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
     
-    weights = [0.3, 0.3, 0.2, 0.2]
-    feasibility_score = np.dot([complexity_score, availability_score, conditions_score, yield_score], weights)
+    model = RandomForestRegressor(n_estimators=100, random_state=42)
+    model.fit(X_train, y_train)
     
-    return feasibility_score
+    y_pred = model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    logger.info(f"Model MSE: {mse}")
+    
+    joblib.dump(model, 'reaction_prediction_model.joblib')
+    return model
 
-def evaluate_reaction_complexity(pathway):
-    """Evaluates reaction complexity of a pathway."""
-    complexity_scores = []
-    for reaction in pathway:
-        reaction_data = get_reaction_data(reaction)
-        num_reactants = len(reaction_data['reactants'])
-        num_products = len(reaction_data['products'])
-        num_steps = reaction_data['num_steps']
-        
-        complexity = (num_reactants + num_products) * num_steps / 10
-        complexity_scores.append(min(complexity, 1))
-    
-    return np.mean(complexity_scores)
+def predict_reaction_outcome(model, reaction_features):
+    """Predicts the outcome of a reaction using the trained model."""
+    return model.predict([reaction_features])[0]
 
-def evaluate_reactant_availability(pathway):
-    """Evaluates reactant availability of a pathway."""
-    availability_scores = []
-    for reaction in pathway:
-        reaction_data = get_reaction_data(reaction)
-        for reactant in reaction_data['reactants']:
-            chemical_data = get_chemical_data(reactant)
-            availability = chemical_data['availability_score']
-            availability_scores.append(availability)
+def generate_reaction_features(reaction):
+    """Generates features for a reaction."""
+    reaction_data = get_reaction_data(reaction)
+    features = []
     
-    return np.mean(availability_scores)
+    # Add reactant features
+    for reactant in reaction_data['reactants']:
+        mol = Chem.MolFromSmiles(reactant)
+        features.extend([
+            Descriptors.ExactMolWt(mol),
+            Descriptors.NumHDonors(mol),
+            Descriptors.NumHAcceptors(mol),
+            Descriptors.MolLogP(mol)
+        ])
+    
+    # Add reaction condition features
+    features.extend([
+        reaction_data.get('temperature', 25),  # Default to 25 if not present
+        reaction_data.get('pressure', 1),      # Default to 1 if not present
+        reaction_data.get('catalyst_amount', 0)  # Default to 0 if not present
+    ])
+    
+    return features
 
-def evaluate_reaction_conditions(pathway):
-    """Evaluates reaction conditions of a pathway."""
-    condition_scores = []
-    for reaction in pathway:
-        reaction_data = get_reaction_data(reaction)
-        temperature = reaction_data['temperature']
-        pressure = reaction_data['pressure']
-        
-        temp_score = 1 - (abs(temperature - 25) / 200)
-        pressure_score = 1 - (abs(pressure - 1) / 100)
-        
-        condition_scores.append((temp_score + pressure_score) / 2)
-    
-    return np.mean(condition_scores)
 
-def evaluate_yield_and_selectivity(pathway):
-    """Evaluates yield and selectivity of a pathway."""
-    yield_scores = []
-    for reaction in pathway:
-        reaction_data = get_reaction_data(reaction)
-        yield_value = reaction_data['yield']
-        selectivity = reaction_data['selectivity']
-        
-        yield_scores.append((yield_value * selectivity) / 100)
-    
-    return np.mean(yield_scores)
+def identify_novel_disconnections(mol):
+    """Identifies novel disconnection points using machine learning."""
+    # This is a placeholder for ML-based disconnection identification
+    # In a real implementation, you would use a trained model to predict disconnection points
+    return identify_disconnection_points(mol)
 
 def visualize_retrosynthesis_tree(G, result_id):
     """Visualizes the retrosynthesis tree."""
@@ -395,11 +500,34 @@ def advanced_retrosynthetic_analysis(compound_id, smiles, depth=3, strategy="dfs
 
         G = build_retrosynthesis_tree(smiles, depth, strategy)
 
+        # Extract pathways from the retrosynthesis tree
+        pathways = list(nx.all_simple_paths(G, smiles, [node for node in G.nodes() if G.out_degree(node) == 0]))
+
+        # Rank and filter pathways
+        ranked_pathways = rank_and_filter_pathways(pathways)
+
+        # Load or train ML model
+        try:
+            model = joblib.load('reaction_prediction_model.joblib')
+        except FileNotFoundError:
+            # If model doesn't exist, train a new one (you'll need to provide X and y)
+            X, y = prepare_training_data()  # You need to implement this function
+            model = train_ml_model(X, y)
+
+        # Predict outcomes for top pathways
+        top_pathways = ranked_pathways[:5]  # Consider top 5 pathways
+        for i, (score, pathway) in enumerate(top_pathways):
+            for reaction in pathway:
+                features = generate_reaction_features(reaction)
+                predicted_outcome = predict_reaction_outcome(model, features)
+                logger.info(f"Predicted outcome for reaction in pathway {i+1}: {predicted_outcome}")
+
         result = {
             'graph': G,
             'num_nodes': G.number_of_nodes(),
             'num_edges': G.number_of_edges(),
-            'num_pathways': len(list(nx.all_simple_paths(G, smiles, [node for node in G.nodes() if G.out_degree(node) == 0]))),
+            'num_pathways': len(pathways),
+            'ranked_pathways': ranked_pathways,
             'tree_image': visualize_retrosynthesis_tree(G, compound_id)
         }
 
@@ -409,6 +537,22 @@ def advanced_retrosynthetic_analysis(compound_id, smiles, depth=3, strategy="dfs
         return result
     finally:
         session.close()
+
+def prepare_training_data():
+    """Prepares training data for the machine learning model."""
+    X = []
+    y = []
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM reactions")
+        reactions = cursor.fetchall()
+    
+    for reaction in reactions:
+        features = generate_reaction_features(reaction[1])  # reaction_smiles is at index 1
+        X.append(features)
+        y.append(reaction[7])  # yield is at index 7
+    
+    return np.array(X), np.array(y)
 
 from networkx.readwrite import json_graph
 def get_advanced_retrosynthesis_result(result_id):
@@ -428,8 +572,25 @@ def get_advanced_retrosynthesis_result(result_id):
         }
     return None
 
-        
-
+def create_reactions_table():
+    """Creates the reactions table in the database."""
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS reactions (
+                id INTEGER PRIMARY KEY,
+                reaction_smiles TEXT NOT NULL,
+                reactants TEXT,
+                products TEXT,
+                num_steps INTEGER,
+                temperature REAL,
+                pressure REAL,
+                yield REAL,
+                selectivity REAL
+            )
+        ''')
+        conn.commit()
+    logger.info("Reactions table created successfully")
 
 class AdvancedRetrosynthesisResult(Base):
     __tablename__ = 'advanced_retrosynthesis_results'
@@ -442,14 +603,18 @@ class AdvancedRetrosynthesisResult(Base):
     num_edges = Column(Integer)
     num_pathways = Column(Integer)
     tree_image = Column(String)
-    graph = Column(JSON)  # New field to store graph data
+    graph = Column(JSON)
+    ranked_pathways = Column(JSON)  # New field to store ranked pathways
 
     def __repr__(self):
         return f"<AdvancedRetrosynthesisResult(id={self.id}, compound_id={self.compound_id})>"
 
+
 def main():
     create_tables()
+    create_reactions_table()
     insert_sample_compounds()
+    insert_sample_reactions()  # Add this line
     
     compound_id = 1
     smiles = "CC(=O)Oc1ccccc1C(=O)O"
@@ -458,7 +623,3 @@ def main():
     
     result = advanced_retrosynthetic_analysis(compound_id, smiles, depth, strategy)
     print(result)
-
-if __name__ == "__main__":
-    main()   
-    
