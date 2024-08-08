@@ -93,7 +93,6 @@ class ChemPathUI:
         self.strategy_combo = ttk.Combobox(self.advanced_retro_frame, textvariable=self.strategy_var, values=["dfs", "bfs", "dijkstra", "astar"])
         self.strategy_combo.pack()
 
-        # Add weights input
         ttk.Label(self.advanced_retro_frame, text="Weights:").pack()
         self.weight_frame = ttk.Frame(self.advanced_retro_frame)
         self.weight_frame.pack()
@@ -102,7 +101,6 @@ class ChemPathUI:
         self.availability_weight = self.create_weight_input(self.weight_frame, "Availability:", 0, 1, 0.3)
         self.cost_weight = self.create_weight_input(self.weight_frame, "Cost:", 0, 2, 0.3)
 
-        # Add criteria input
         ttk.Label(self.advanced_retro_frame, text="Criteria:").pack()
         self.criteria_frame = ttk.Frame(self.advanced_retro_frame)
         self.criteria_frame.pack()
@@ -259,3 +257,7 @@ def main():
     db_path = "chempath_database.db"  # or use a configuration file to set this
     app = ChemPathUI(root, db_path)
     root.mainloop()
+
+if __name__ == '__main__':
+    main()
+
