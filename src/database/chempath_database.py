@@ -858,6 +858,14 @@ Session = sessionmaker(bind=engine)
 # Create a base class for declarative class definitions
 Base = declarative_base()
 
+from sqlalchemy import Table, Column, Integer, ForeignKey
+from sqlalchemy.orm import relationship
+
+compound_pathway = Table('compound_pathway', Base.metadata,
+    Column('compound_id', Integer, ForeignKey('plant_compounds.id')),
+    Column('pathway_id', Integer, ForeignKey('biosynthetic_pathways.id'))
+)
+
 class Compound(Base):
     __tablename__ = 'compounds'
     id = Column(Integer, primary_key=True)
@@ -872,6 +880,8 @@ class Compound(Base):
     inchi = Column(String)
     iupac_name = Column(String)
     synonyms = Column(String)
+
+    pathways = relationship("BiosyntheticPathway", secondary=compound_pathway, back_populates="compounds")
 
     def __repr__(self):
         return f"<Compound(cmpdname='{self.cmpdname}', smiles='{self.smiles}')>"
@@ -892,6 +902,19 @@ class CompoundSchema(Schema):
 
 compound_schema = CompoundSchema()
 compounds_schema = CompoundSchema(many=True)
+
+
+
+
+class BiosyntheticPathway(Base):
+    __tablename__ = 'biosynthetic_pathways'
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    description = Column(String)
+    organisms = Column(String)
+    compounds = relationship("Compound", secondary=compound_pathway, back_populates="pathways")
+
 
 def create_engine_and_session():
     engine = create_engine(database_url)

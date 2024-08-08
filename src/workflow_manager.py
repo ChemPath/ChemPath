@@ -1,13 +1,11 @@
-import asyncio
-from database_operations import session, Compound
+from database_operations import get_session, Compound
 from optimization_algorithms import optimize_compound
 from retrosynthetic_tools import analyze_retrosynthesis
-from optimization_algorithms import optimize_compound, refine_based_on_retrosynthesis
-
 
 class WorkflowManager:
     def __init__(self):
         self.workflows = {}
+        self.session = get_session()
 
     async def start_workflow(self, compound_id):
         workflow = {
@@ -22,28 +20,28 @@ class WorkflowManager:
 
     async def execute_workflow(self, compound_id):
         workflow = self.workflows[compound_id]
-        compound = session.query(Compound).get(compound_id)
+        compound = self.session.query(Compound).get(compound_id)
 
-        for iteration in range(3):  # Allow up to 3 iterations
+        for step in workflow['steps']:
             try:
-                optimized_smiles = optimize_compound(compound.smiles)
-                retro_result = analyze_retrosynthesis(optimized_smiles)
-                refined_smiles = refine_based_on_retrosynthesis(optimized_smiles, retro_result)
-                
-                compound.smiles = refined_smiles
-                session.commit()
-                
-                workflow['results'][f'iteration_{iteration}'] = {
-                    'optimized': optimized_smiles,
-                    'retrosynthesis': retro_result,
-                    'refined': refined_smiles
-                }
-                
-                if refined_smiles == optimized_smiles:
-                    break  # No further refinement needed
+                if step == 'retrieval':
+                    workflow['results']['original'] = compound.to_dict()
+                elif step == 'optimization':
+                    optimized_smiles = optimize_compound(compound.smiles)
+                    compound.smiles = optimized_smiles
+                    self.session.commit()
+                    workflow['results']['optimized'] = compound.to_dict()
+                elif step == 'retrosynthesis':
+                    retro_result = analyze_retrosynthesis(compound.smiles)
+                    workflow['results']['retrosynthesis'] = retro_result
+                workflow['current_step'] = step
             except Exception as e:
-                workflow['errors'].append(f"Error in iteration {iteration}: {str(e)}")
+                workflow['errors'].append(f"Error in {step}: {str(e)}")
                 workflow['status'] = 'error'
                 return
-        
         workflow['status'] = 'completed'
+
+    def get_workflow_status(self, compound_id):
+        return self.workflows.get(compound_id, {'status': 'not_found'})
+
+workflow_manager = WorkflowManager()

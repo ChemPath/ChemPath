@@ -1,13 +1,17 @@
 from sqlalchemy import create_engine, Column, Integer, String, Float, Text
-from sqlalchemy import Column, Integer, String, Float, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.types import TypeDecorator
 from sqlalchemy import Index
-from .models import Compound
 import asyncio
 import aiohttp
 import logging
+
+
+def get_session():
+    _, session = create_engine_and_session()
+    return session
+
 
 Base = declarative_base()
 logging.basicConfig(level=logging.INFO)
@@ -34,7 +38,7 @@ class Compound(Base):
     plant_source = Column(String)
     biological_activity = Column(Text)
     traditional_use = Column(Text)
-    pubchem_cid = Column(Integer)
+    pubchem_cid = Column(Integer, unique=True)
     inchi = Column(Text)
     iupac_name = Column(String)
     synonyms = Column(Text)
@@ -53,18 +57,16 @@ class Compound(Base):
     known_interactions = Column(Text)
     ecological_role = Column(String)
     seasonal_variation = Column(String)
+
     def __repr__(self):
         return f"<Compound(name='{self.name}', smiles='{self.smiles}', plant_source='{self.plant_source}')>"
-    from sqlalchemy import Index
 
 # Add these lines after the Compound class definition
-    Index('idx_name', Compound.name)
-    Index('idx_smiles', Compound.smiles)
-    Index('idx_plant_source', Compound.plant_source)
-    Index('idx_biological_activity', Compound.biological_activity)
-    Index('idx_pubchem_cid', Compound.pubchem_cid)
-
-# These indexes will be created when you run your database initialization or migration script
+Index('idx_name', Compound.name)
+Index('idx_smiles', Compound.smiles)
+Index('idx_plant_source', Compound.plant_source)
+Index('idx_biological_activity', Compound.biological_activity)
+Index('idx_pubchem_cid', Compound.pubchem_cid)
 
 def create_engine_and_session(db_url='sqlite:///chempath_database.db'):
     engine = create_engine(db_url)
