@@ -1,3 +1,6 @@
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from aiohttp import web
 from aiohttp_session import setup, get_session
 from aiohttp_session.cookie_storage import EncryptedCookieStorage
@@ -7,7 +10,8 @@ from cryptography import fernet
 from api_v1 import routes as v1_routes
 from auth import check_credentials, get_user_role
 from rate_limit import RateLimiter
-
+from flask import Flask, request, jsonify
+from src.database.chempath_database import db, PlantCompound
 # Generate a random secret key
 fernet_key = fernet.Fernet.generate_key()
 secret_key = fernet_key[:32]
@@ -88,3 +92,50 @@ app.router.add_get('/logout', logout_handler)
 if __name__ == '__main__':
     web.run_app(app)
 
+app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///chempath.db'
+db.init_app(app)
+
+@app.route('/api/search', methods=['GET'])
+def search():
+    query = request.args.get('q', '')
+    search_type = request.args.get('type', 'full_text')
+
+    if search_type == 'full_text':
+        results = PlantCompound.full_text_search(query)
+    elif search_type == 'fuzzy':
+        results = PlantCompound.fuzzy_search(query)
+    else:
+        return jsonify({'error': 'Invalid search type'}), 400
+
+    return jsonify([{
+        'id': r.id,
+        'name': r.name,
+        'plant_source': r.plant_source,
+        'biological_activity': r.biological_activity
+    } for r in results])
+
+@app.route('/api/filter', methods=['GET'])
+def filter():
+    filter_params = {
+        'min_molecular_weight': request.args.get('min_mw', type=float),
+        'max_molecular_weight': request.args.get('max_mw', type=float),
+        'min_logp': request.args.get('min_logp', type=float),
+        'max_logp': request.args.get('max_logp', type=float),
+        'plant_source': request.args.get('plant_source'),
+        'biological_activity': request.args.get('biological_activity')
+    }
+    
+    results = PlantCompound.advanced_filter(**{k: v for k, v in filter_params.items() if v is not None})
+
+    return jsonify([{
+        'id': r.id,
+        'name': r.name,
+        'molecular_weight': r.molecular_weight,
+        'logp': r.logp,
+        'plant_source': r.plant_source,
+        'biological_activity': r.biological_activity
+    } for r in results])
+
+if __name__ == '__main__':
+    app.run(debug=True)

@@ -27,6 +27,59 @@ from sqlalchemy.orm import declarative_base
 from marshmallow import Schema, fields
 from flask_marshmallow import Marshmallow
 import re
+from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
+from fuzzywuzzy import fuzz
+
+db = SQLAlchemy()
+
+class PlantCompound(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(255), nullable=False)
+    smiles = db.Column(db.String(255))
+    molecular_weight = db.Column(db.Float)
+    logp = db.Column(db.Float)
+    plant_source = db.Column(db.String(255))
+    biological_activity = db.Column(db.Text)
+    traditional_use = db.Column(db.Text)
+
+    @classmethod
+    def full_text_search(cls, query):
+        return cls.query.filter(
+            db.or_(
+                cls.name.ilike(f'%{query}%'),
+                cls.plant_source.ilike(f'%{query}%'),
+                cls.biological_activity.ilike(f'%{query}%'),
+                cls.traditional_use.ilike(f'%{query}%')
+            )
+        ).all()
+
+    @classmethod
+    def fuzzy_search(cls, query, threshold=80):
+        all_compounds = cls.query.all()
+        return [
+            compound for compound in all_compounds
+            if fuzz.partial_ratio(query.lower(), compound.name.lower()) >= threshold
+            or fuzz.partial_ratio(query.lower(), compound.plant_source.lower()) >= threshold
+        ]
+
+    @classmethod
+    def advanced_filter(cls, **kwargs):
+        filters = []
+        if 'min_molecular_weight' in kwargs:
+            filters.append(cls.molecular_weight >= kwargs['min_molecular_weight'])
+        if 'max_molecular_weight' in kwargs:
+            filters.append(cls.molecular_weight <= kwargs['max_molecular_weight'])
+        if 'min_logp' in kwargs:
+            filters.append(cls.logp >= kwargs['min_logp'])
+        if 'max_logp' in kwargs:
+            filters.append(cls.logp <= kwargs['max_logp'])
+        if 'plant_source' in kwargs:
+            filters.append(cls.plant_source.ilike(f"%{kwargs['plant_source']}%"))
+        if 'biological_activity' in kwargs:
+            filters.append(cls.biological_activity.ilike(f"%{kwargs['biological_activity']}%"))
+        
+        return cls.query.filter(*filters).all()
 
 tasks = []
 async def fetch_pubchem_data(http_session, cid):
