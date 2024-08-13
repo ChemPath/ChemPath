@@ -5,9 +5,14 @@ pandas
 apscheduler
 joblib
 flask
-psycopg2-binary==2.9.3
 sqlalchemy
 networkx
 matplotlib
 numpy
 tensorflow
+psycopg2-binary
+Flask
+Flask-SQLAlchemy
+requests
+beautifulsoup4
+tqdm
