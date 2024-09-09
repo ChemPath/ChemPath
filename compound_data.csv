@@ -1,3 +1,0 @@
-name,smiles,molecular_weight,logp,plant_source,biological_activity,traditional_use
-Quercetin,O=C1C(O)=C(O)C(=O)C2=C1C=C(O)C(O)=C2O,302.24,1.54,"Various fruits and vegetables","Antioxidant, anti-inflammatory","Traditional Chinese Medicine for cardiovascular health"
-Curcumin,COC1=CC(=CC(=C1O)OC)C=CC(=O)CC(=O)C=CC2=CC(=C(C=C2)O)OC,368.38,3.29,"Turmeric (Curcuma longa)","Anti-inflammatory, antioxidant","Ayurvedic medicine for various ailments"
