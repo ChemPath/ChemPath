@@ -31,3 +31,12 @@ data/cleaned_data/
 
 # Ignore large .sdf.gz files
 *.sdf.gz
+
+# Ignore the TCMSP-Spider directory
+TCMSP-Spider/
+
+# Ignore BFG Repo-Cleaner jar file
+bfg-1.14.0.jar
+
+# Ignore Python script for finding large files
+find_large_files.py
