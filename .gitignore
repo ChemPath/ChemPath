@@ -29,6 +29,5 @@ venv/
 data/spider_data/
 data/cleaned_data/
 
-
-
-
+# Ignore large .sdf.gz files
+*.sdf.gz
