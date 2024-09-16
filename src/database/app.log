@@ -4398,3 +4398,350 @@ INFO:__main__:Compound PHUB001000 already exists in the database.
 INFO:__main__:Completed loading PhytoHub data
 INFO:__main__:Forcing reload of PubMed data...
 INFO:__main__:Starting PubMed data update...
+INFO:__main__:Database connection successful but no data found.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+ERROR:__main__:Database connection failed: (psycopg2.errors.UndefinedColumn) column traditional_compounds.pubmed_citations does not exist
+LINE 1: ...ounds.synonyms AS traditional_compounds_synonyms, traditiona...
+                                                             ^
+
+[SQL: SELECT traditional_compounds.id AS traditional_compounds_id, traditional_compounds.name AS traditional_compounds_name, traditional_compounds.molecular_weight AS traditional_compounds_molecular_weight, traditional_compounds.alogp AS traditional_compounds_alogp, traditional_compounds.h_don AS traditional_compounds_h_don, traditional_compounds.h_acc AS traditional_compounds_h_acc, traditional_compounds.ob_percentage AS traditional_compounds_ob_percentage, traditional_compounds.caco_2 AS traditional_compounds_caco_2, traditional_compounds.bbb AS traditional_compounds_bbb, traditional_compounds.dl AS traditional_compounds_dl, traditional_compounds.fasa AS traditional_compounds_fasa, traditional_compounds.tpsa AS traditional_compounds_tpsa, traditional_compounds.rbn AS traditional_compounds_rbn, traditional_compounds.hl AS traditional_compounds_hl, traditional_compounds.inchi_key AS traditional_compounds_inchi_key, traditional_compounds.pubchem_cid AS traditional_compounds_pubchem_cid, traditional_compounds.cas_number AS traditional_compounds_cas_number, traditional_compounds.synonyms AS traditional_compounds_synonyms, traditional_compounds.pubmed_citations AS traditional_compounds_pubmed_citations, traditional_compounds.related_articles AS traditional_compounds_related_articles 
+FROM traditional_compounds 
+ LIMIT %(param_1)s]
+[parameters: {'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Database connection successful but no data found.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=1 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=2 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=3 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=4 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=5 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=6 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=7 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=8 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=9 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=10 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3b9c25aae4f1309bdc8&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3bae2c8cf8ce106863f&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3bb67900970de0ffff4&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3bc7da1f15c1902d495&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3bddbfd5042550e1627&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3becec5c7ac1407dbe0&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3bf95a12499ae08a474&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3c057efef14c80e9cfa&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3c1c3d6671e570cda5a&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f3c2009d8dce700f3db5&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=1 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=2 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=3 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=4 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=5 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=6 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=7 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=8 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=9 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=10 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Scraping TCMSP molecule data for testing...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=1 HTTP/11" 200 None
+INFO:__main__:Added anthocyanidin to the database successfully.
+INFO:__main__:Data integration test completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: anthocyanidin
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=anthocyanidin+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f6845a4feed570030f85&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for anthocyanidin
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=21 HTTP/11" 200 None
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=21 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=22 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=23 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f7b622ef8b88a40df0c1&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f7b74c175094120e6fbf&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f7b8ea70d7f18704987e&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=21 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=22 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=23 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=24 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f85c8c6346d5b70de677&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f85d8b6643f0c50e094e&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f85e1a0d5af5c80c3414&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e4f85f012f90e31f039e88&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=21 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=22 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=23 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=24 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51c17ae4a28c712058610&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51c189156604c0902c130&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51c19f16d3f9955094d2e&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51c1ac7aa9f51e40bf37e&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=21 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=22 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=23 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /molecule.php?qn=24 HTTP/11" 200 None
+INFO:__main__:Added Unknown Molecule to the database successfully.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51e95555427177806172c&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51e969e4f8483510e3640&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51e976002cf607a0ff012&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Fetching PubMed data for compound: Unknown Molecule
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/esearch.fcgi?db=pubmed&term=Unknown+Molecule+AND+plant&retmax=100&usehistory=y HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): eutils.ncbi.nlm.nih.gov:443
+DEBUG:urllib3.connectionpool:https://eutils.ncbi.nlm.nih.gov:443 "GET /entrez/eutils/efetch.fcgi?db=pubmed&query_key=1&WebEnv=MCID_66e51e98e7b58e11dc0f76f8&retmode=xml&retmax=10 HTTP/11" 200 None
+INFO:__main__:Updated PubMed data for Unknown Molecule
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+INFO:__main__:Successfully added herb 'Aidicha' and related data to the database.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+INFO:__main__:Successfully added herb 'Aidicha' and related data to the database.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+INFO:__main__:Successfully added herb 'Aidicha' and related data to the database.
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+INFO:__main__:Successfully added herb 'Aidicha' and related data to the database.
+INFO:__main__:Data integration completed successfully.
+INFO:__main__:Database connection successful.
+INFO:__main__:Updating PubMed data...
+INFO:__main__:Starting PubMed data update...
+INFO:__main__:Scraping TCMSP molecule data...
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+DEBUG:urllib3.connectionpool:Starting new HTTPS connection (1): old.tcmsp-e.com:443
+DEBUG:urllib3.connectionpool:https://old.tcmsp-e.com:443 "GET /tcmspsearch.php?qr=Aidicha HTTP/11" 200 None
+INFO:__main__:Data integration completed successfully.

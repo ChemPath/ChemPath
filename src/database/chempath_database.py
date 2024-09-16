@@ -1,124 +1,109 @@
+import sys
+import os
+
+# Add the project root directory to PYTHONPATH
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+
 import requests
-from bs4 import BeautifulSoup
-import aiohttp
-import asyncio
-import time
+import logging
+import xml.etree.ElementTree as ET
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-import logging
-from requests.adapters import HTTPAdapter
-from urllib3.util.retry import Retry
-import re
-import xml.etree.ElementTree as ET
+from sqlalchemy import Column, Integer, String, Float, Text, ForeignKey
+from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.orm import relationship
+from src.scrapers.herb_scraper import scrape_herb_details  # Use an absolute import
 
+# Initialize Flask and SQLAlchemy
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:Iamabundant28@localhost/chempath_database'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-logging.basicConfig(filename='app.log', level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+# Your code continues here...
 
-# Print and log when script starts
-print("Starting script...")
-logger.info("Starting script...")
+# Define database models
+class TraditionalCompound(db.Model):
+    __tablename__ = 'traditional_compounds'
 
-### Define the PlantCompound model correctly
-class PlantCompound(db.Model):
-    __tablename__ = 'plant_compounds'
+    id = Column(Integer, primary_key=True)
+    name = Column(String, nullable=False)
+    molecular_weight = Column(Float)
+    alogp = Column(Float)
+    h_don = Column(Integer)
+    h_acc = Column(Integer)
+    ob_percentage = Column(Float)  # Oral Bioavailability
+    caco_2 = Column(Float)  # Caco-2 Permeability
+    bbb = Column(Float)  # Blood-brain barrier penetration
+    dl = Column(Float)  # Drug-likeness
+    fasa = Column(Float)  # Fractional negative surface area
+    tpsa = Column(Float)  # Topological polar surface area
+    rbn = Column(Integer)  # Rotatable bond number
+    hl = Column(Float)  # Half-life
+    inchi_key = Column(String)
+    pubchem_cid = Column(String)
+    cas_number = Column(String)
+    synonyms = Column(Text)
+    related_articles = Column(Text)
+    pubmed_citations = Column(Integer)  # or Column(String) if storing text data
 
-    id = db.Column(db.Integer, primary_key=True)
-    phytohub_id = db.Column(db.String, unique=True, nullable=False)
-    name = db.Column(db.String)
-    systematic_name = db.Column(db.String)
-    synonyms = db.Column(db.String)
-    cas_number = db.Column(db.String)
-    average_mass = db.Column(db.Float)
-    monoisotopic_mass = db.Column(db.Float)
-    chemical_formula = db.Column(db.String)
-    iupac_name = db.Column(db.String)
-    inchi_key = db.Column(db.String)
-    inchi_identifier = db.Column(db.String)
-    smiles = db.Column(db.String)
-    solubility = db.Column(db.Float)
-    log_s = db.Column(db.Float)
-    log_p = db.Column(db.Float)
-    pubmed_citations = db.Column(db.Integer)
-    google_scholar_citations = db.Column(db.Integer)
-    related_articles = db.Column(db.Text)
+    # Relationships
+    herbs = relationship('RelatedHerb', backref='compound', lazy=True)
+    targets = relationship('RelatedTarget', backref='compound', lazy=True)
+    diseases = relationship('RelatedDisease', backref='compound', lazy=True)
 
-### Test database connection function using SQLAlchemy ORM
-def test_database_connection():
-    try:
-        with app.app_context():
-            # Test database connection with a simple query
-            if db.session.query(PlantCompound).first() is not None:
-                print("Database connection successful.")
-                logger.info("Database connection successful.")
-            else:
-                print("Database connection successful but no data found.")
-                logger.info("Database connection successful but no data found.")
-    except Exception as e:
-        print(f"Database connection failed: {e}")
-        logger.error(f"Database connection failed: {e}")
+class RelatedHerb(db.Model):
+    __tablename__ = 'related_herbs'
 
-### PhytoHub Data Loading Functions
+    id = Column(Integer, primary_key=True)
+    compound_id = Column(Integer, ForeignKey('traditional_compounds.id'), nullable=False)
+    chinese_name = Column(String)
+    latin_name = Column(String)
 
-def fetch_phytohub_data(phytohub_id):
-    print(f"Fetching data for PhytoHub ID: {phytohub_id}")
-    logger.info(f"Fetching data for PhytoHub ID: {phytohub_id}")
-    url = f"https://phytohub.eu/entries/{phytohub_id}"
-    try:
-        response = requests.get(url)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch data for {phytohub_id}: {str(e)}")
-        return None
+class RelatedTarget(db.Model):
+    __tablename__ = 'related_targets'
 
-    soup = BeautifulSoup(response.content, 'html.parser')
-    compound_data = {'phytohub_id': phytohub_id}
-    
-    # Extract name from the page title
-    title_element = soup.find('title')
-    if title_element:
-        title_text = title_element.text.strip()
-        name_match = re.search(r'Showing entry for (.+)', title_text)
-        if name_match:
-            compound_data['name'] = name_match.group(1).strip()
+    id = Column(Integer, primary_key=True)
+    compound_id = Column(Integer, ForeignKey('traditional_compounds.id'), nullable=False)
+    target_name = Column(String)
+    source = Column(String)
 
-    return compound_data
+class RelatedDisease(db.Model):
+    __tablename__ = 'related_diseases'
 
-def load_phytohub_data():
+    id = Column(Integer, primary_key=True)
+    compound_id = Column(Integer, ForeignKey('traditional_compounds.id'), nullable=False)
+    disease_name = Column(String)
+
+# Save data to the database
+def save_herb_data(herb_name, compounds, related_targets, related_diseases):
     with app.app_context():
-        session = db.session
+        try:
+            # Save compounds
+            for compound_data in compounds:
+                compound = TraditionalCompound(name=compound_data['name'], molecular_weight=compound_data['molecular_weight'])
+                db.session.add(compound)
 
-        for i in range(1, 1001):
-            phytohub_id = f"PHUB{i:06d}"
-            compound_data = fetch_phytohub_data(phytohub_id)
-            if compound_data and compound_data['name']:
-                existing_compound = PlantCompound.query.filter_by(phytohub_id=phytohub_id).first()
-                if existing_compound:
-                    logger.info(f"Compound {phytohub_id} already exists in the database.")
-                    continue
-                try:
-                    compound = PlantCompound(**compound_data)
-                    session.add(compound)
-                    session.commit()
-                    logger.info(f"Committed compound {phytohub_id} to database")
-                except Exception as e:
-                    logger.error(f"Error adding compound {phytohub_id} to database: {str(e)}")
-                    session.rollback()
-            else:
-                logger.warning(f"No data found for compound {phytohub_id}")
-            time.sleep(0.5)
+            # Save related targets
+            for target_data in related_targets:
+                target = RelatedTarget(compound_name=target_data['compound_name'], target_name=target_data['target_name'], source=target_data['source'])
+                db.session.add(target)
 
-        logger.info("Completed loading PhytoHub data")
+            # Save related diseases
+            for disease_data in related_diseases:
+                disease = RelatedDisease(target_name=disease_data['target_name'], disease_name=disease_data['disease_name'])
+                db.session.add(disease)
 
-### PubMed Data Handling Functions
+            db.session.commit()
+            print(f"Data for {herb_name} saved successfully.")
 
+        except SQLAlchemyError as e:
+            print(f"Error saving data for {herb_name}: {str(e)}")
+            db.session.rollback()
+
+# Fetch PubMed data
 def fetch_pubmed_data(compound_name):
     print(f"Fetching PubMed data for compound: {compound_name}")
-    logger.info(f"Fetching PubMed data for compound: {compound_name}")
     try:
         base_url = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/"
         search_url = f"{base_url}esearch.fcgi"
@@ -158,17 +143,16 @@ def fetch_pubmed_data(compound_name):
         
         return count, related_articles
     except Exception as e:
-        logger.error(f"Error fetching PubMed data for {compound_name}: {str(e)}")
+        logging.error(f"Error fetching PubMed data for {compound_name}: {str(e)}")
         return 0, []
 
+# Update compounds with PubMed data
 def update_with_pubmed_data():
     print("Starting PubMed data update...")
-    logger.info("Starting PubMed data update...")
     with app.app_context():
-        # Update only if both pubmed_citations and related_articles are missing
-        compounds = PlantCompound.query.filter(
-            PlantCompound.pubmed_citations.is_(None), 
-            PlantCompound.related_articles.is_(None)
+        compounds = TraditionalCompound.query.filter(
+            TraditionalCompound.pubmed_citations.is_(None), 
+            TraditionalCompound.related_articles.is_(None)
         ).all()
         for compound in compounds:
             try:
@@ -176,23 +160,24 @@ def update_with_pubmed_data():
                 compound.pubmed_citations = pubmed_count
                 compound.related_articles = "\n".join(related_articles[:10])
                 db.session.commit()
-                logger.info(f"Updated PubMed data for {compound.name}")
+                logging.info(f"Updated PubMed data for {compound.name}")
             except Exception as e:
-                logger.error(f"Error updating PubMed data for {compound.name}: {str(e)}")
+                logging.error(f"Error updating PubMed data for {compound.name}: {str(e)}")
                 db.session.rollback()
 
-### Main Workflow
-
+# Main workflow
 def main():
-    # Test the database connection
-    test_database_connection()
+    # Sample usage: scraping data for a specific herb
+    herb_name = 'Aidicha'
+    compounds, related_targets, related_diseases = scrape_herb_details(herb_name)
+    
+    # Check if any data was retrieved before attempting to add to the database
+    if compounds or related_targets or related_diseases:
+        save_herb_data(herb_name, compounds, related_targets, related_diseases)
+    else:
+        print(f"No data found for herb: {herb_name}")
 
-    print("Loading PhytoHub data...")
-    logger.info("Loading PhytoHub data...")
-    load_phytohub_data()
-
-    print("Forcing reload of PubMed data...")
-    logger.info("Forcing reload of PubMed data...")
+    # Update with PubMed data
     update_with_pubmed_data()
 
 if __name__ == "__main__":

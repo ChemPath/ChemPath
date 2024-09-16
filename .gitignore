@@ -1,9 +1,33 @@
-# Ignore the virtual environment directory
-venv/
+# Logs
+*.log
+logs/
 
-# Ignore other files or directories as needed
+# Cache files
+.pytest_cache/
+
+# Compiled files
 *.pyc
 __pycache__/
+
+# Models
+src/models/*.joblib
+
+# Virtual environments
+venv/
+
+# Ignore all Excel files
+*.xlsx
+*.xls
+
+# Ignore database files
+*.db
+*.sqlite
+*.sql
+*.dump
+
+# Ignore specific directories
+data/spider_data/
+data/cleaned_data/
 
 
 
