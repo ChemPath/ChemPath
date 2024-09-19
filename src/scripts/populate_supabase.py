@@ -201,7 +201,7 @@ def insert_data(file_path, table_name, herb_id, herb_name):
             # Check for duplicates
             response = supabase_client.table('diseases').select('id').eq('disease_name', disease_name).eq('herb_id', herb_id).execute()
             if response.data:
-                print(f"Disease '{disease_name}' already exists for this herb.")
+                print(f"Disease '{disease_name}' already exists for this herb. Skipping insertion.")
                 continue
             
             # Insert data into diseases table
@@ -263,14 +263,9 @@ def insert_data(file_path, table_name, herb_id, herb_name):
 
 # Main function to insert all information for each herb
 def main():
-    # List of new herb files
-    herb_files = [
-        'Mahuanggen_disease.xlsx', 'Mahuanggen_ingredients.xlsx', 'Mahuanggen_targets.xlsx',
-        'Baizhu_disease.xlsx', 'Baizhu_ingredients.xlsx', 'Baizhu_targets.xlsx',
-        'Chenpi_disease.xlsx', 'Chenpi_ingredients.xlsx', 'Chenpi_targets.xlsx',
-        'Mahuang_disease.xlsx', 'Mahuang_ingredients.xlsx', 'Mahuang_targets.xlsx'
-    ]
-    
+    # Automatically find all herb files in the cleaned_data directory
+    herb_files = [f for f in os.listdir(data_directory) if f.endswith('.xlsx') and '_' in f]
+
     for file_name in herb_files:
         # Extract herb name from file name
         herb_name = file_name.split('_')[0]
@@ -298,6 +293,7 @@ def main():
             insert_data(file_path, table_name, herb_id, herb_name)
         else:
             print(f"File not found: {file_path}")
+
 
 if __name__ == '__main__':
     main()
