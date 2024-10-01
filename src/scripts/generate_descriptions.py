@@ -6,11 +6,11 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Supabase client setup
 url = 'https://lqwxjiijnhefterkeety.supabase.co'
-key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxxd3hqaWlqbmhlZnRlcmtlZXR5Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTcyNjU5NTk3OSwiZXhwIjoyMDQyMTcxOTc5fQ.bmEG-1VU5MgU9TAWsXS0FEwVpH3qgc49dyUqXxvK3Kk'
+key = 'key'
 supabase: Client = create_client(url, key)
 
 # Gemini AI setup
-genai.configure(api_key='AIzaSyC6rBa5G4jex1Uik0Uzhq0OYureqJW6PwY')
+genai.configure(api_key='key')
 
 def fetch_compounds_without_descriptions(offset, limit):
     try:
