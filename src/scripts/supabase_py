@@ -1,0 +1,16 @@
+import psycopg2
+
+try:
+    conn = psycopg2.connect(
+        host="aws-0-us-west-1.pooler.supabase.com",
+        database="postgres",  # usually "postgres"
+        user="postgres.lqwxjiijnhefterkeety",
+        password="Iamabundant1228!",
+        port="6543",  # Supabase uses the standard PostgreSQL port
+        sslmode="require"  # Supabase requires SSL
+    )
+    print("Connected successfully!")
+    conn.close()
+
+except Exception as e:
+    print("Connection error:", e)
